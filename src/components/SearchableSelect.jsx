@@ -15,6 +15,8 @@ export function SearchableSelect({
   options,
   placeholder,
   getOptionLabel = (o) => String(o),
+  /** Optional extra text used only for filtering (e.g. country aliases). */
+  getOptionFilterText,
   getOptionValue = (o) => o,
   noResultsText,
   id: idProp,
@@ -42,8 +44,9 @@ export function SearchableSelect({
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     if (!q) return options
-    return options.filter((o) => getOptionLabel(o).toLowerCase().includes(q))
-  }, [options, query, getOptionLabel])
+    const haystack = getOptionFilterText ?? getOptionLabel
+    return options.filter((o) => haystack(o).toLowerCase().includes(q))
+  }, [options, query, getOptionLabel, getOptionFilterText])
 
   const emptyLabel = noResultsText ?? t('select.noResults')
   const ph = placeholder ?? t('select.typeToSearch')

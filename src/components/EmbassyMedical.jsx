@@ -1,6 +1,9 @@
 import { useMemo, useState } from 'react'
-import { IMMIGRANT_VISA_POSTS } from '../data/immigrantVisaPosts'
-import { OFFICIAL_SOURCES } from '../data/officialSources'
+import {
+  getPostInstructionsUrl,
+  getPostMedicalUrl,
+  IMMIGRANT_VISA_POSTS,
+} from '../data/immigrantVisaPosts'
 import { useLanguage } from '../hooks/useLanguage'
 import { card, heading, muted } from '../theme/ui'
 import { SearchableSelect } from './SearchableSelect'
@@ -12,8 +15,9 @@ export function EmbassyMedical() {
 
   const post = useMemo(() => IMMIGRANT_VISA_POSTS.find((p) => p.id === postId) ?? null, [postId])
 
-  const interviewUrl = post?.interviewInstructionsUrl || post?.officialWebsite
-  const medicalUrl = post?.medicalInstructionsUrl || post?.officialWebsite
+  const interviewUrl = post ? getPostInstructionsUrl(post) : '#'
+  const medicalUrl = post ? getPostMedicalUrl(post) : '#'
+  const officialPostUrl = post ? getPostInstructionsUrl(post) : '#'
   const mapQuery = post?.address?.trim() ? post.address : `${post?.name ?? ''} ${post?.city ?? ''}`
 
   return (
@@ -29,10 +33,14 @@ export function EmbassyMedical() {
             onChange={setPostId}
             options={IMMIGRANT_VISA_POSTS}
             getOptionValue={(p) => p.id}
-            getOptionLabel={(p) => `${p.name} — ${p.city}, ${p.countryCode}`}
+            getOptionLabel={(p) => `${p.name} — ${p.city}, ${p.country}`}
+            getOptionFilterText={(p) => p.searchText}
             placeholder={t('roadmap.embassySearch')}
             noResultsText={t('common.noMatches')}
           />
+          {post?.id === 'de-frn' ? (
+            <p className={`mt-3 text-xs leading-relaxed ${muted}`}>{t('embassy.germanyFrankfurtIvHint')}</p>
+          ) : null}
         </div>
 
         {post ? (
@@ -43,18 +51,30 @@ export function EmbassyMedical() {
                   <h3 className={`text-lg font-semibold ${heading}`}>{post.name}</h3>
                   <p className={`text-sm ${muted}`}>
                     {post.city}, {post.country} · {post.type} · {post.region}
+                    {post.postCode ? ` · ${post.postCode}` : null}
                   </p>
                 </div>
-                <span
-                  className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
-                    post.verificationStatus === 'unverified'
-                      ? 'bg-amber-100 text-amber-950 dark:bg-amber-500/20 dark:text-amber-100'
-                      : 'bg-emerald-100 text-emerald-950 dark:bg-emerald-500/20 dark:text-emerald-100'
-                  }`}
-                >
-                  {post.verificationStatus === 'unverified' ? t('embassy.badgeUnverified') : t('embassy.badgeVerified')}
-                </span>
+                <div className="flex flex-wrap justify-end gap-2">
+                  <span
+                    className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                      post.supplementUrl
+                        ? 'bg-emerald-100 text-emerald-950 dark:bg-emerald-500/20 dark:text-emerald-100'
+                        : 'bg-slate-200 text-slate-900 dark:bg-white/10 dark:text-slate-200'
+                    }`}
+                  >
+                    {post.supplementUrl ? t('embassy.badgeDirectSupplement') : t('embassy.badgeGeneralPostsList')}
+                  </span>
+                  {post.verificationStatus === 'unverified' ? (
+                    <span className="shrink-0 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-950 dark:bg-amber-500/20 dark:text-amber-100">
+                      {t('embassy.badgeUnverified')}
+                    </span>
+                  ) : null}
+                </div>
               </div>
+
+              <p className={`mb-4 rounded-lg border border-slate-200/80 bg-slate-50/90 px-3 py-2 text-xs leading-relaxed ${muted} dark:border-white/10 dark:bg-slate-900/40`}>
+                {t('embassy.instructionsPreferDirect')}
+              </p>
 
               {post.verificationStatus === 'unverified' ? (
                 <p className="mb-4 rounded-lg border border-amber-200/70 bg-amber-50/80 px-3 py-2 text-sm text-amber-950 dark:border-amber-400/30 dark:bg-amber-500/10 dark:text-amber-50/95">
@@ -95,15 +115,15 @@ export function EmbassyMedical() {
                   {t('embassy.medicalInstructions')}
                 </a>
                 <a
-                  href={post.sourceUrl}
+                  href={officialPostUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex rounded-lg border border-slate-300/60 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-white/15 dark:text-slate-200 dark:hover:bg-white/5"
                 >
-                  {t('embassy.officialPostsList')}
+                  {t('embassy.officialPostInstructions')}
                 </a>
               </div>
-              {!(post.interviewInstructionsUrl && post.medicalInstructionsUrl) ? (
+              {!post.supplementUrl ? (
                 <p className={`mt-3 text-xs ${muted}`}>{t('embassy.instructionsOnWebsite')}</p>
               ) : null}
 
@@ -137,7 +157,7 @@ export function EmbassyMedical() {
                 ) : null}
               </div>
               <a
-                href={OFFICIAL_SOURCES.listOfImmigrantVisaPosts}
+                href={post ? getPostInstructionsUrl(post) : '#'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`${card} block p-4 text-sm font-semibold text-violet-600 dark:text-violet-300 hover:underline`}

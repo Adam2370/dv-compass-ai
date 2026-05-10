@@ -10,6 +10,7 @@ export function filterPosts(query) {
   if (!q) return US_OVERSEAS_POSTS
   return US_OVERSEAS_POSTS.filter(
     (p) =>
+      (p.searchText && p.searchText.includes(q)) ||
       p.label.toLowerCase().includes(q) ||
       p.city.toLowerCase().includes(q) ||
       p.countryCode.toLowerCase().includes(q) ||

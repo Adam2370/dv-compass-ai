@@ -167,6 +167,7 @@ export function DocumentRoadmap() {
               options={US_OVERSEAS_POSTS}
               getOptionValue={(p) => p.id}
               getOptionLabel={(p) => `${p.label} — ${p.city}`}
+              getOptionFilterText={(p) => p.searchText ?? `${p.label} ${p.city} ${p.countryCode}`}
               placeholder={t('roadmap.embassySearch')}
               noResultsText={t('common.noMatches')}
               footer={
@@ -223,9 +224,19 @@ export function DocumentRoadmap() {
               <article className={`${card} border-indigo-300/40 dark:border-indigo-400/30 bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-500/10 dark:to-transparent p-6`}>
                 <h4 className="text-indigo-800 dark:text-indigo-200 font-semibold mb-1">{embassy.label}</h4>
                 <p className={`text-xs ${muted} mb-2 whitespace-pre-line`}>{embassy.address}</p>
-                <a href={embassy.website} target="_blank" rel="noopener noreferrer" className="text-sm text-violet-600 dark:text-violet-300 hover:underline">
-                  {embassy.website}
-                </a>
+                <div className="flex flex-col gap-2">
+                  <a href={embassy.website} target="_blank" rel="noopener noreferrer" className="text-sm text-violet-600 dark:text-violet-300 hover:underline">
+                    {embassy.website}
+                  </a>
+                  <a
+                    href={embassy.instructionsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-semibold text-indigo-600 dark:text-indigo-300 hover:underline"
+                  >
+                    {t('embassy.officialPostInstructions')}
+                  </a>
+                </div>
               </article>
             ) : null}
 

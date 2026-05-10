@@ -258,6 +258,13 @@ export const translations = {
         'Verify current immigrant visa processing status through the official State Department list of posts.',
       badgeVerified: 'Seed listing — re-check travel.state.gov',
       badgeUnverified: 'Details incomplete — verify on the official posts list',
+      badgeDirectSupplement: 'Direct official post page',
+      badgeGeneralPostsList: 'General posts list — verify manually',
+      instructionsPreferDirect:
+        'Use the direct post page when available. If only the general posts list is available, select your post manually and verify current instructions.',
+      germanyFrankfurtIvHint:
+        'Immigrant visa processing for Germany is listed under Frankfurt on Travel.State.Gov.',
+      officialPostInstructions: 'Official post instructions (Travel.State.Gov)',
       instructionsOnWebsite: 'Use the post’s official website for interview scheduling and medical guidance.',
       officialPostsList: 'Official list of immigrant visa posts (travel.state.gov)',
       tipBinder: 'Organize originals and copies in a tabbed binder as instructed.',
@@ -499,6 +506,13 @@ export const translations = {
         'Vérifiez le traitement actuel des visas d’immigrant via la liste officielle des postes du Département d’État.',
       badgeVerified: 'Fiche initiale — revérifiez travel.state.gov',
       badgeUnverified: 'Détails incomplets — vérifiez sur la liste officielle des postes',
+      badgeDirectSupplement: 'Page officielle directe du poste',
+      badgeGeneralPostsList: 'Liste générale des postes — vérifier manuellement',
+      instructionsPreferDirect:
+        'Utilisez la page directe du poste lorsqu’elle est disponible. Si seule la liste générale est disponible, sélectionnez votre poste manuellement et vérifiez les instructions en vigueur.',
+      germanyFrankfurtIvHint:
+        'Le traitement des visas d’immigrant pour l’Allemagne est indiqué sous Francfort sur Travel.State.Gov.',
+      officialPostInstructions: 'Instructions officielles du poste (Travel.State.Gov)',
       instructionsOnWebsite: 'Utilisez le site officiel du poste pour entretien et instructions médicales.',
       officialPostsList: 'Liste officielle des postes de visas d’immigrant (travel.state.gov)',
       tipBinder: 'Classez originaux et copies dans un classeur à onglets comme demandé.',
@@ -736,6 +750,12 @@ export const translations = {
         'تحقق من حالة معالجة تأشيرات الهجرة الحالية عبر القائمة الرسمية لوزارة الخارجية للبعثات.',
       badgeVerified: 'بيانات أولية — أعد التحقق من travel.state.gov',
       badgeUnverified: 'تفاصيل ناقصة — تحقق من القائمة الرسمية للبعثات',
+      badgeDirectSupplement: 'صفحة رسمية مباشرة للبعثة',
+      badgeGeneralPostsList: 'قائمة عامة للبعثات — تحقق يدوياً',
+      instructionsPreferDirect:
+        'استخدم صفحة البعثة المباشرة عند توفرها. إن كانت القائمة العامة فقط متاحة، اختر بعثتك يدوياً وتحقق من التعليمات الحالية.',
+      germanyFrankfurtIvHint: 'معالجة تأشيرة الهجرة لألمانيا مدرجة تحت فرانكفورت على Travel.State.Gov.',
+      officialPostInstructions: 'تعليمات رسمية للبعثة (Travel.State.Gov)',
       instructionsOnWebsite: 'استخدم الموقع الرسمي للبعثة لتعليمات المقابلة والفحص.',
       officialPostsList: 'القائمة الرسمية لبعثات تأشيرات الهجرة (travel.state.gov)',
       tipBinder: 'رتّب الأصول والنسخ في ملف بألسنة كما طُلب.',
@@ -976,6 +996,13 @@ export const translations = {
         'Verifique el procesamiento actual de visas de inmigrante en la lista oficial de postes del Departamento de Estado.',
       badgeVerified: 'Ficha inicial — vuelva a comprobar travel.state.gov',
       badgeUnverified: 'Datos incompletos — verifique en la lista oficial de postes',
+      badgeDirectSupplement: 'Página oficial directa del poste',
+      badgeGeneralPostsList: 'Lista general de postes — verificar manualmente',
+      instructionsPreferDirect:
+        'Use la página directa del poste cuando esté disponible. Si solo está la lista general, seleccione su poste manualmente y verifique las instrucciones vigentes.',
+      germanyFrankfurtIvHint:
+        'El procesamiento de visas de inmigrante para Alemania figura bajo Fráncfort en Travel.State.Gov.',
+      officialPostInstructions: 'Instrucciones oficiales del poste (Travel.State.Gov)',
       instructionsOnWebsite: 'Use el sitio oficial del poste para entrevista e instrucciones médicas.',
       officialPostsList: 'Lista oficial de postes de visas de inmigrante (travel.state.gov)',
       tipBinder: 'Organice originales y copias en carpeta con pestañas según instrucciones.',

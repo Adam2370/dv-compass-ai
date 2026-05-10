@@ -1,8 +1,8 @@
-import { OFFICIAL_SOURCES } from './officialSources.js'
+import { OFFICIAL_POSTS_LIST_URL, OFFICIAL_SOURCES } from './officialSources.js'
 import { getMacroRegion } from './countryMacroRegions.js'
 import { countryLabel } from '../utils/countries.js'
 
-const SOURCE = OFFICIAL_SOURCES.listOfImmigrantVisaPosts
+const LIST_FALLBACK = OFFICIAL_SOURCES.listOfImmigrantVisaPosts
 
 /**
  * @typedef {'Embassy' | 'Consulate'} PostType
@@ -16,6 +16,8 @@ const SOURCE = OFFICIAL_SOURCES.listOfImmigrantVisaPosts
  *   region: string,
  *   type: PostType,
  *   processesImmigrantVisas: boolean,
+ *   postCode: string | null,
+ *   supplementUrl: string | null,
  *   officialWebsite: string,
  *   interviewInstructionsUrl: string | null,
  *   medicalInstructionsUrl: string | null,
@@ -23,37 +25,83 @@ const SOURCE = OFFICIAL_SOURCES.listOfImmigrantVisaPosts
  *   phone: string,
  *   sourceUrl: string,
  *   verificationStatus: PostVerification,
+ *   searchText: string,
  * }} ImmigrantVisaPost
  */
 
-/** @param {{ id: string, label: string, countryCode: string, city: string, address: string, phone: string, website: string, type?: PostType, verificationStatus?: PostVerification }} raw */
+/**
+ * @param {{
+ *   id: string,
+ *   label: string,
+ *   countryCode: string,
+ *   city: string,
+ *   address: string,
+ *   phone: string,
+ *   website: string,
+ *   type?: PostType,
+ *   verificationStatus?: PostVerification,
+ *   postCode?: string | null,
+ *   supplementUrl?: string | null,
+ *   interviewInstructionsUrl?: string | null,
+ *   medicalInstructionsUrl?: string | null,
+ *   searchExtras?: string[],
+ * }} raw
+ */
 function buildPost(raw) {
   const type =
     raw.type ?? (raw.label.toLowerCase().includes('consulate') ? 'Consulate' : 'Embassy')
   const verificationStatus = raw.verificationStatus ?? 'seed'
+  const supplementUrl = raw.supplementUrl ?? null
+  const sourceUrl = supplementUrl ?? LIST_FALLBACK
+  const interviewInstructionsUrl = raw.interviewInstructionsUrl ?? supplementUrl ?? null
+  const medicalInstructionsUrl = raw.medicalInstructionsUrl ?? supplementUrl ?? null
+  const countryName = countryLabel(raw.countryCode, 'en')
+  const searchText = [raw.label, raw.city, countryName, raw.countryCode, ...(raw.searchExtras ?? [])]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+
   return {
     id: raw.id,
     name: raw.label,
     city: raw.city,
-    country: countryLabel(raw.countryCode, 'en'),
+    country: countryName,
     countryCode: raw.countryCode,
     region: getMacroRegion(raw.countryCode),
     type,
     processesImmigrantVisas: true,
+    postCode: raw.postCode ?? null,
+    supplementUrl,
     officialWebsite: raw.website,
-    interviewInstructionsUrl: null,
-    medicalInstructionsUrl: null,
+    interviewInstructionsUrl,
+    medicalInstructionsUrl,
     address: raw.address,
     phone: raw.phone,
-    sourceUrl: SOURCE,
+    sourceUrl,
     verificationStatus,
+    searchText,
   }
+}
+
+/** @param {ImmigrantVisaPost | null | undefined} post */
+export function getPostInstructionsUrl(post) {
+  if (!post) return OFFICIAL_POSTS_LIST_URL
+  return post.supplementUrl || post.interviewInstructionsUrl || post.sourceUrl || OFFICIAL_POSTS_LIST_URL
+}
+
+/** @param {ImmigrantVisaPost | null | undefined} post */
+export function getPostMedicalUrl(post) {
+  if (!post) return OFFICIAL_POSTS_LIST_URL
+  return post.medicalInstructionsUrl || post.supplementUrl || post.sourceUrl || OFFICIAL_POSTS_LIST_URL
 }
 
 /** @type {ImmigrantVisaPost[]} */
 export const IMMIGRANT_VISA_POSTS = [
   buildPost({
     id: 'cm-yde',
+    postCode: 'YDE',
+    supplementUrl:
+      'https://travel.state.gov/content/travel/en/us-visas/Supplements/Supplements_by_Post/YDE-Yaounde.html',
     label: 'U.S. Embassy Yaoundé',
     countryCode: 'CM',
     city: 'Yaoundé',
@@ -63,6 +111,9 @@ export const IMMIGRANT_VISA_POSTS = [
   }),
   buildPost({
     id: 'ae-abd',
+    postCode: 'ABD',
+    supplementUrl:
+      'https://travel.state.gov/content/travel/en/us-visas/Supplements/Supplements_by_Post/ABD-Abu-Dhabi.html',
     label: 'U.S. Embassy Abu Dhabi',
     countryCode: 'AE',
     city: 'Abu Dhabi',
@@ -217,13 +268,18 @@ export const IMMIGRANT_VISA_POSTS = [
     website: 'https://bd.usembassy.gov',
   }),
   buildPost({
-    id: 'de-ber',
-    label: 'U.S. Embassy Berlin',
+    id: 'de-frn',
+    postCode: 'FRN',
+    supplementUrl:
+      'https://travel.state.gov/content/travel/en/us-visas/Supplements/Supplements_by_Post/FRN-Frankfurt.html',
+    label: 'U.S. Consulate General Frankfurt',
     countryCode: 'DE',
-    city: 'Berlin',
-    address: 'Pariser Platz 2, 10117 Berlin, Germany',
-    phone: '+49-30-8305-0',
-    website: 'https://de.usembassy.gov',
+    city: 'Frankfurt',
+    address: 'Giessener Str. 30, 60435 Frankfurt am Main, Germany',
+    phone: '+49-69-7535-0',
+    website: 'https://de.usembassy.gov/embassy-consulates/frankfurt/',
+    type: 'Consulate',
+    searchExtras: ['Germany', 'Deutschland', 'Berlin', 'immigrant visa', 'Frankfurt am Main'],
   }),
   buildPost({
     id: 'ca-ott',
@@ -449,6 +505,10 @@ export function toLegacyPost(post) {
     address: post.address,
     phone: post.phone,
     website: post.officialWebsite,
+    supplementUrl: post.supplementUrl ?? null,
+    searchText: post.searchText,
+    instructionsUrl: getPostInstructionsUrl(post),
+    medicalUrl: getPostMedicalUrl(post),
   }
 }
 
@@ -457,10 +517,8 @@ export function filterImmigrantPosts(query) {
   if (!q) return IMMIGRANT_VISA_POSTS
   return IMMIGRANT_VISA_POSTS.filter(
     (p) =>
-      p.name.toLowerCase().includes(q) ||
-      p.city.toLowerCase().includes(q) ||
-      p.countryCode.toLowerCase().includes(q) ||
-      p.country.toLowerCase().includes(q) ||
+      p.searchText.includes(q) ||
+      (p.postCode && p.postCode.toLowerCase().includes(q)) ||
       (p.address && p.address.toLowerCase().includes(q))
   )
 }
