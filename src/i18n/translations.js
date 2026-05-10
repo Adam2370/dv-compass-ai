@@ -134,6 +134,10 @@ export const translations = {
       noMatches: 'No matches',
       removeItem: 'Remove',
     },
+    select: {
+      noResults: 'No results',
+      typeToSearch: 'Type to search',
+    },
     journey: {
       title: 'Choose your stage',
       subtitle: 'Wherever you are on the path, we help you see the next steps with clarity.',
@@ -371,6 +375,10 @@ export const translations = {
       noMatches: 'Aucun résultat',
       removeItem: 'Retirer',
     },
+    select: {
+      noResults: 'Aucun résultat',
+      typeToSearch: 'Tapez pour rechercher',
+    },
     journey: {
       title: 'Choisissez votre étape',
       subtitle: 'Où que vous soyez sur le chemin, nous aidons à clarifier la suite.',
@@ -603,6 +611,10 @@ export const translations = {
       mapsPlaceholder: 'خرائط (عيّنة)',
       noMatches: 'لا توجد نتائج',
       removeItem: 'إزالة',
+    },
+    select: {
+      noResults: 'لا توجد نتائج',
+      typeToSearch: 'اكتب للبحث',
     },
     journey: {
       title: 'اختر مرحلتك',
@@ -839,6 +851,10 @@ export const translations = {
       mapsPlaceholder: 'Mapas (placeholder)',
       noMatches: 'Sin coincidencias',
       removeItem: 'Quitar',
+    },
+    select: {
+      noResults: 'Sin resultados',
+      typeToSearch: 'Escriba para buscar',
     },
     journey: {
       title: 'Elige tu etapa',

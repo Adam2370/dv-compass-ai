@@ -37,3 +37,7 @@ export const navLinkActive =
 
 export const glassHero =
   'rounded-full border border-slate-200/80 bg-white/80 px-4 py-1.5 text-xs font-medium tracking-wide text-violet-800 backdrop-blur-sm dark:border-white/10 dark:bg-white/5 dark:text-violet-100/95'
+
+/** Portaled combobox list: max-height overridden inline when positioning. */
+export const portalListboxClassName =
+  'overflow-y-auto overflow-x-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-xl dark:border-white/10 dark:bg-slate-900 overscroll-contain outline-none'

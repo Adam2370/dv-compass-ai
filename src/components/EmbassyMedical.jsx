@@ -21,7 +21,7 @@ export function EmbassyMedical() {
       <div className="mx-auto max-w-6xl px-4">
         <SectionHeading title={t('embassy.title')} subtitle={t('embassy.subtitle')} />
 
-        <div className={`${card} p-6 md:p-8 mb-10 max-w-2xl`}>
+        <div className={`${card} p-6 md:p-8 mb-12 lg:mb-16 max-w-2xl`}>
           <SearchableSelect
             label={t('embassy.pickPost')}
             id="embassy-post-select"

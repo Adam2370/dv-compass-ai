@@ -1,9 +1,12 @@
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useLanguage } from '../hooks/useLanguage'
-import { input, muted } from '../theme/ui'
+import { usePortalDropdownPosition } from '../hooks/usePortalDropdownPosition'
+import { input, muted, portalListboxClassName } from '../theme/ui'
 
 /**
  * Single searchable combobox: one field shows selection; open to type filter and pick option.
+ * Dropdown is portaled to document.body to avoid clipping.
  */
 export function SearchableSelect({
   label,
@@ -18,11 +21,14 @@ export function SearchableSelect({
   disabled = false,
   footer,
 }) {
-  const { isRtl } = useLanguage()
+  const { isRtl, t } = useLanguage()
   const reactId = useId()
   const id = idProp ?? reactId
   const listId = `${id}-list`
   const containerRef = useRef(null)
+  const anchorRef = useRef(null)
+  const portalRef = useRef(null)
+  const listInnerRef = useRef(null)
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [highlight, setHighlight] = useState(0)
@@ -39,16 +45,49 @@ export function SearchableSelect({
     return options.filter((o) => getOptionLabel(o).toLowerCase().includes(q))
   }, [options, query, getOptionLabel])
 
+  const emptyLabel = noResultsText ?? t('select.noResults')
+  const ph = placeholder ?? t('select.typeToSearch')
+
+  const portalStyle = usePortalDropdownPosition(open && !disabled, anchorRef, {
+    maxHeight: 280,
+    repositionKey: `${filtered.length}-${query}`,
+  })
+
+  const safeHighlight = useMemo(
+    () => Math.min(highlight, Math.max(0, filtered.length - 1)),
+    [highlight, filtered.length]
+  )
+
+  useLayoutEffect(() => {
+    if (!open || !listInnerRef.current) return
+    const node = listInnerRef.current.querySelector(`[data-opt-index="${safeHighlight}"]`)
+    node?.scrollIntoView({ block: 'nearest' })
+  }, [safeHighlight, open, filtered.length])
+
   useEffect(() => {
     if (!open) return
     const onDoc = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
+      const target = e.target
+      if (!(target instanceof Node)) return
+      if (containerRef.current?.contains(target)) return
+      if (portalRef.current?.contains(target)) return
+      setOpen(false)
+      setQuery('')
+    }
+    document.addEventListener('mousedown', onDoc)
+    return () => document.removeEventListener('mousedown', onDoc)
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
         setOpen(false)
         setQuery('')
       }
     }
-    document.addEventListener('mousedown', onDoc)
-    return () => document.removeEventListener('mousedown', onDoc)
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
   }, [open])
 
   const selectOption = useCallback(
@@ -75,6 +114,7 @@ export function SearchableSelect({
   }
 
   const onKeyDown = (e) => {
+    if (e.key === 'Tab') return
     if (!open && (e.key === 'ArrowDown' || e.key === 'Enter')) {
       e.preventDefault()
       setHighlight(0)
@@ -99,7 +139,7 @@ export function SearchableSelect({
     }
     if (e.key === 'Enter' && filtered.length > 0) {
       e.preventDefault()
-      const opt = filtered[Math.min(highlight, filtered.length - 1)]
+      const opt = filtered[safeHighlight]
       if (opt) selectOption(opt)
     }
   }
@@ -116,9 +156,62 @@ export function SearchableSelect({
     }
   }
 
+  const dropdown =
+    open && !disabled
+      ? createPortal(
+          <ul
+            ref={(n) => {
+              portalRef.current = n
+              listInnerRef.current = n
+            }}
+            id={listId}
+            role="listbox"
+            dir={isRtl ? 'rtl' : 'ltr'}
+            style={portalStyle}
+            className={portalListboxClassName}
+          >
+            {filtered.length === 0 ? (
+              <li className={`px-3 py-2 text-sm ${muted}`} role="option">
+                {emptyLabel}
+              </li>
+            ) : (
+              filtered.map((opt, i) => {
+                const v = getOptionValue(opt)
+                const lbl = getOptionLabel(opt)
+                const active = i === safeHighlight
+                const selected = v === value
+                return (
+                  <li key={String(v)} role="presentation">
+                    <button
+                      type="button"
+                      role="option"
+                      data-opt-index={i}
+                      aria-selected={selected}
+                      className={`w-full px-3 py-2 text-start text-sm ${
+                        selected
+                          ? 'bg-violet-200/80 text-violet-950 dark:bg-violet-500/30 dark:text-violet-50'
+                          : active
+                            ? 'bg-violet-100 text-violet-900 dark:bg-violet-500/20 dark:text-violet-100'
+                            : 'text-slate-800 dark:text-slate-200'
+                      } hover:bg-slate-100 dark:hover:bg-white/10`}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onMouseEnter={() => setHighlight(i)}
+                      onClick={() => selectOption(opt)}
+                    >
+                      {lbl}
+                    </button>
+                  </li>
+                )
+              })
+            )}
+          </ul>,
+          document.body
+        )
+      : null
+
   const control = (
     <div ref={containerRef} className="relative">
-      <div className="relative">
+      <div ref={anchorRef} className="relative">
         <input
           id={id}
           type="text"
@@ -128,7 +221,7 @@ export function SearchableSelect({
           aria-autocomplete="list"
           disabled={disabled}
           readOnly={false}
-          placeholder={showPlaceholder ? placeholder : undefined}
+          placeholder={showPlaceholder ? ph : undefined}
           value={open ? inputValue : displayLabel}
           onChange={onInputChange}
           onKeyDown={onKeyDown}
@@ -156,42 +249,7 @@ export function SearchableSelect({
         </button>
       </div>
 
-      {open && !disabled ? (
-        <ul
-          id={listId}
-          role="listbox"
-          className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-slate-200 bg-white py-1 shadow-lg dark:border-white/10 dark:bg-slate-900"
-        >
-          {filtered.length === 0 ? (
-            <li className={`px-3 py-2 text-sm ${muted}`} role="option">
-              {noResultsText}
-            </li>
-          ) : (
-            filtered.map((opt, i) => {
-              const v = getOptionValue(opt)
-              const lbl = getOptionLabel(opt)
-              const active = i === highlight
-              return (
-                <li key={String(v)}>
-                  <button
-                    type="button"
-                    role="option"
-                    aria-selected={v === value}
-                    className={`w-full px-3 py-2 text-start text-sm ${
-                      active ? 'bg-violet-100 text-violet-900 dark:bg-violet-500/20 dark:text-violet-100' : 'text-slate-800 dark:text-slate-200'
-                    } hover:bg-slate-100 dark:hover:bg-white/10`}
-                    onMouseDown={(e) => e.preventDefault()}
-                    onMouseEnter={() => setHighlight(i)}
-                    onClick={() => selectOption(opt)}
-                  >
-                    {lbl}
-                  </button>
-                </li>
-              )
-            })
-          )}
-        </ul>
-      ) : null}
+      {dropdown}
       {footer}
     </div>
   )

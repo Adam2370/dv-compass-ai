@@ -1,9 +1,11 @@
-import { useEffect, useId, useMemo, useRef, useState } from 'react'
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useLanguage } from '../hooks/useLanguage'
-import { input, muted } from '../theme/ui'
+import { usePortalDropdownPosition } from '../hooks/usePortalDropdownPosition'
+import { input, muted, portalListboxClassName } from '../theme/ui'
 
 /**
- * Multi-select: one searchable input; chips below; pick from dropdown to add (no second search field).
+ * Multi-select: one searchable input; chips below; pick from portaled dropdown to add.
  */
 export function SearchableMultiSelect({
   label,
@@ -22,6 +24,9 @@ export function SearchableMultiSelect({
   const id = idProp ?? reactId
   const listId = `${id}-list`
   const containerRef = useRef(null)
+  const anchorRef = useRef(null)
+  const portalRef = useRef(null)
+  const listInnerRef = useRef(null)
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [highlight, setHighlight] = useState(0)
@@ -39,16 +44,49 @@ export function SearchableMultiSelect({
     return available.filter((o) => getOptionLabel(o).toLowerCase().includes(q))
   }, [available, query, getOptionLabel])
 
+  const emptyLabel = noResultsText ?? t('select.noResults')
+  const ph = placeholder ?? t('select.typeToSearch')
+
+  const portalStyle = usePortalDropdownPosition(open, anchorRef, {
+    maxHeight: 280,
+    repositionKey: `${filtered.length}-${query}`,
+  })
+
+  const safeHighlight = useMemo(
+    () => Math.min(highlight, Math.max(0, filtered.length - 1)),
+    [highlight, filtered.length]
+  )
+
+  useLayoutEffect(() => {
+    if (!open || !listInnerRef.current) return
+    const node = listInnerRef.current.querySelector(`[data-opt-index="${safeHighlight}"]`)
+    node?.scrollIntoView({ block: 'nearest' })
+  }, [safeHighlight, open, filtered.length])
+
   useEffect(() => {
     if (!open) return
     const onDoc = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
+      const target = e.target
+      if (!(target instanceof Node)) return
+      if (containerRef.current?.contains(target)) return
+      if (portalRef.current?.contains(target)) return
+      setOpen(false)
+      setQuery('')
+    }
+    document.addEventListener('mousedown', onDoc)
+    return () => document.removeEventListener('mousedown', onDoc)
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
         setOpen(false)
         setQuery('')
       }
     }
-    document.addEventListener('mousedown', onDoc)
-    return () => document.removeEventListener('mousedown', onDoc)
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
   }, [open])
 
   const add = (opt) => {
@@ -64,7 +102,8 @@ export function SearchableMultiSelect({
   }
 
   const onKeyDown = (e) => {
-    if (!open && e.key === 'ArrowDown') {
+    if (e.key === 'Tab') return
+    if (!open && (e.key === 'ArrowDown' || e.key === 'Enter')) {
       e.preventDefault()
       setHighlight(0)
       setOpen(true)
@@ -76,6 +115,7 @@ export function SearchableMultiSelect({
       e.preventDefault()
       setOpen(false)
       setQuery('')
+      return
     }
     if (e.key === 'ArrowDown') {
       e.preventDefault()
@@ -87,21 +127,66 @@ export function SearchableMultiSelect({
     }
     if (e.key === 'Enter' && filtered.length > 0) {
       e.preventDefault()
-      const opt = filtered[Math.min(highlight, filtered.length - 1)]
+      const opt = filtered[safeHighlight]
       if (opt) add(opt)
     }
   }
 
+  const dropdown = open
+    ? createPortal(
+        <ul
+          ref={(n) => {
+            portalRef.current = n
+            listInnerRef.current = n
+          }}
+          id={listId}
+          role="listbox"
+          dir={isRtl ? 'rtl' : 'ltr'}
+          style={portalStyle}
+          className={portalListboxClassName}
+        >
+          {filtered.length === 0 ? (
+            <li className={`px-3 py-2 text-sm ${muted}`} role="option">
+              {emptyLabel}
+            </li>
+          ) : (
+            filtered.map((opt, i) => {
+              const lbl = getOptionLabel(opt)
+              const active = i === safeHighlight
+              return (
+                <li key={String(getOptionValue(opt))} role="presentation">
+                  <button
+                    type="button"
+                    role="option"
+                    data-opt-index={i}
+                    className={`w-full px-3 py-2 text-start text-sm ${
+                      active ? 'bg-violet-100 text-violet-900 dark:bg-violet-500/20 dark:text-violet-100' : 'text-slate-800 dark:text-slate-200'
+                    } hover:bg-slate-100 dark:hover:bg-white/10`}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onMouseEnter={() => setHighlight(i)}
+                    onClick={() => add(opt)}
+                  >
+                    {lbl}
+                  </button>
+                </li>
+              )
+            })
+          )}
+        </ul>,
+        document.body
+      )
+    : null
+
   const inner = (
     <div ref={containerRef} className="space-y-2">
-      <div className="relative">
+      <div ref={anchorRef} className="relative">
         <input
           id={id}
           type="text"
           role="combobox"
           aria-expanded={open}
           aria-controls={listId}
-          placeholder={placeholder}
+          placeholder={ph}
           value={open ? query : ''}
           onChange={(e) => {
             setHighlight(0)
@@ -120,39 +205,9 @@ export function SearchableMultiSelect({
             <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </span>
-
-        {open ? (
-          <ul
-            id={listId}
-            role="listbox"
-            className="absolute z-50 mt-1 max-h-52 w-full overflow-auto rounded-xl border border-slate-200 bg-white py-1 shadow-lg dark:border-white/10 dark:bg-slate-900"
-          >
-            {filtered.length === 0 ? (
-              <li className={`px-3 py-2 text-sm ${muted}`}>{noResultsText}</li>
-            ) : (
-              filtered.map((opt, i) => {
-                const lbl = getOptionLabel(opt)
-                const active = i === highlight
-                return (
-                  <li key={String(getOptionValue(opt))}>
-                    <button
-                      type="button"
-                      className={`w-full px-3 py-2 text-start text-sm ${
-                        active ? 'bg-violet-100 text-violet-900 dark:bg-violet-500/20 dark:text-violet-100' : 'text-slate-800 dark:text-slate-200'
-                      } hover:bg-slate-100 dark:hover:bg-white/10`}
-                      onMouseDown={(e) => e.preventDefault()}
-                      onMouseEnter={() => setHighlight(i)}
-                      onClick={() => add(opt)}
-                    >
-                      {lbl}
-                    </button>
-                  </li>
-                )
-              })
-            )}
-          </ul>
-        ) : null}
       </div>
+
+      {dropdown}
 
       {value.length > 0 ? (
         <div className="flex flex-wrap gap-2">
