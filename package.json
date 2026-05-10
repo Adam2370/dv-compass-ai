@@ -1,11 +1,12 @@
 {
   "name": "dv-compass-ai",
   "private": true,
-  "version": "0.4.0",
+  "version": "0.5.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "import:posts": "node scripts/importTravelStatePosts.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },

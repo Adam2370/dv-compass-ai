@@ -5,6 +5,7 @@
 
 export const VERIFICATION_STATUS = {
   DIRECT_SUPPLEMENT_VERIFIED: 'direct_supplement_verified',
+  DIRECT_SUPPLEMENT_IMPORTED: 'direct_supplement_imported',
   GENERAL_LIST_ONLY: 'general_list_only',
   NEEDS_REVIEW: 'needs_review',
   BROKEN_LINK: 'broken_link',

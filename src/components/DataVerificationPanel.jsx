@@ -29,14 +29,39 @@ export function DataVerificationPanel() {
       </button>
       {open ? (
         <div className="border-t border-slate-200/80 px-4 py-4 dark:border-white/10">
+          {!stats.importFetchOk ? (
+            <p
+              className={`mb-4 rounded-lg border border-amber-200/80 bg-amber-50/90 px-3 py-2 text-xs text-amber-950 dark:border-amber-400/30 dark:bg-amber-500/10 dark:text-amber-50/95`}
+            >
+              {t('embassy.verifImportWarning')}
+            </p>
+          ) : null}
           <ul className={`mb-4 grid gap-2 text-sm sm:grid-cols-2 ${muted}`}>
             <li>
               <span className="font-medium text-slate-800 dark:text-slate-200">{t('embassy.verifTotalPosts')}:</span>{' '}
               {stats.total}
             </li>
             <li>
+              <span className="font-medium text-slate-800 dark:text-slate-200">{t('embassy.verifImportedDirect')}:</span>{' '}
+              {stats.importedDirectSupplements}
+              {stats.importFetchOk ? (
+                <span className="text-slate-400 dark:text-slate-500">
+                  {' '}
+                  ({t('embassy.verifImportSourceCount')}: {stats.importSupplementLinkCount})
+                </span>
+              ) : null}
+            </li>
+            <li>
               <span className="font-medium text-slate-800 dark:text-slate-200">{t('embassy.verifWithDirect')}:</span>{' '}
               {stats.withDirect}
+            </li>
+            <li>
+              <span className="font-medium text-slate-800 dark:text-slate-200">{t('embassy.verifManualOverrides')}:</span>{' '}
+              {stats.manualOverridesCount}
+            </li>
+            <li>
+              <span className="font-medium text-slate-800 dark:text-slate-200">{t('embassy.verifCountryReview')}:</span>{' '}
+              {stats.needsCountryReviewCount}
             </li>
             <li>
               <span className="font-medium text-slate-800 dark:text-slate-200">{t('embassy.verifGeneralFallback')}:</span>{' '}

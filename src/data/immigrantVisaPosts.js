@@ -2,6 +2,14 @@ import { getPostInstructionsUrl, getPostMedicalUrl, OFFICIAL_POSTS_LIST_URL } fr
 import { getMacroRegion } from './countryMacroRegions.js'
 import { VERIFICATION_STATUS } from './verificationRegistry.js'
 import { countryLabel } from '../utils/countries.js'
+import {
+  GENERATED_TRAVEL_STATE_POSTS,
+  GENERATED_TRAVEL_STATE_IMPORT_META,
+} from './generated/travelStatePosts.generated.js'
+import { MANUAL_POST_OVERRIDES } from './manualPostOverrides.js'
+import { mergeGeneratedPostsWithOverrides, mergedImportRowToImmigrantVisaPost } from './mergePosts.js'
+
+export { GENERATED_TRAVEL_STATE_IMPORT_META }
 
 const DEFAULT_NO_SUPPLEMENT_NOTE =
   'Direct post supplement URL not yet verified. User must select post manually from official list.'
@@ -30,8 +38,10 @@ const DEFAULT_NO_SUPPLEMENT_NOTE =
  *   sourceUrl: string,
  *   verificationStatus: PostVerificationStatus,
  *   lastVerified: string | null,
+ *   lastImported: string | null,
  *   notes: string | null,
  *   searchText: string,
+ *   needsCountryReview?: boolean,
  * }} ImmigrantVisaPost
  */
 
@@ -55,6 +65,8 @@ const DEFAULT_NO_SUPPLEMENT_NOTE =
  *   searchExtras?: string[],
  *   notes?: string | null,
  *   lastVerified?: string | null,
+ *   lastImported?: string | null,
+ *   needsCountryReview?: boolean,
  * }} raw
  */
 function buildPost(raw) {
@@ -78,7 +90,10 @@ function buildPost(raw) {
     medicalInstructionsUrl = raw.medicalInstructionsUrl ?? supplementUrl
     panelPhysicianUrl = raw.panelPhysicianUrl ?? supplementUrl
     sourceUrl = supplementUrl
-    verificationStatus = VERIFICATION_STATUS.DIRECT_SUPPLEMENT_VERIFIED
+    verificationStatus =
+      raw.verificationStatus === VERIFICATION_STATUS.DIRECT_SUPPLEMENT_IMPORTED
+        ? VERIFICATION_STATUS.DIRECT_SUPPLEMENT_IMPORTED
+        : VERIFICATION_STATUS.DIRECT_SUPPLEMENT_VERIFIED
     notes = raw.notes ?? null
   } else {
     interviewInstructionsUrl = raw.interviewInstructionsUrl ?? null
@@ -118,14 +133,15 @@ function buildPost(raw) {
     sourceUrl,
     verificationStatus,
     lastVerified: raw.lastVerified ?? null,
+    lastImported: raw.lastImported ?? null,
     notes,
     searchText,
+    needsCountryReview: raw.needsCountryReview ?? false,
   }
 }
 
-/** @type {ImmigrantVisaPost[]} */
-export const IMMIGRANT_VISA_POSTS = [
-  buildPost({
+const FALLBACK_SEED_RAW = [
+  {
     id: 'cm-yde',
     postCode: 'YDE',
     supplementUrl:
@@ -137,8 +153,8 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '(237) 222-514-000',
     website: 'https://cm.usembassy.gov',
     aliases: ['Cameroon', 'Yaounde', 'Yaoundé', 'YDE'],
-  }),
-  buildPost({
+  },
+  {
     id: 'ae-abd',
     postCode: 'ABD',
     supplementUrl:
@@ -150,9 +166,10 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+971-2-414-2200',
     website: 'https://ae.usembassy.gov',
     aliases: ['UAE', 'United Arab Emirates', 'Abu Dhabi', 'Dubai', 'ABD'],
-  }),
-  buildPost({
+  },
+  {
     id: 'in-del',
+    postCode: 'NWD',
     label: 'U.S. Embassy New Delhi',
     countryCode: 'IN',
     city: 'New Delhi',
@@ -161,9 +178,10 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '011-2419-8000 (from India); see usembassy.gov for dialing from abroad',
     website: 'https://in.usembassy.gov',
     aliases: ['India', 'New Delhi', 'Delhi', 'IN'],
-  }),
-  buildPost({
+  },
+  {
     id: 'gh-acc',
+    postCode: 'ACC',
     label: 'U.S. Embassy Accra',
     countryCode: 'GH',
     city: 'Accra',
@@ -171,9 +189,10 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+233-30-274-1000',
     website: 'https://gh.usembassy.gov',
     aliases: ['Ghana', 'Accra', 'GH'],
-  }),
-  buildPost({
+  },
+  {
     id: 'ke-nbo',
+    postCode: 'NRB',
     label: 'U.S. Embassy Nairobi',
     countryCode: 'KE',
     city: 'Nairobi',
@@ -181,8 +200,8 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+254-20-363-6000',
     website: 'https://ke.usembassy.gov',
     aliases: ['Kenya', 'Nairobi', 'KE'],
-  }),
-  buildPost({
+  },
+  {
     id: 'ma-rba',
     label: 'U.S. Embassy Rabat',
     countryCode: 'MA',
@@ -191,9 +210,10 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+212-537-637-200',
     website: 'https://ma.usembassy.gov',
     aliases: ['Morocco', 'Rabat', 'MA'],
-  }),
-  buildPost({
+  },
+  {
     id: 'ma-cas',
+    postCode: 'CSB',
     label: 'U.S. Consulate General Casablanca',
     countryCode: 'MA',
     city: 'Casablanca',
@@ -202,9 +222,10 @@ export const IMMIGRANT_VISA_POSTS = [
     website: 'https://ma.usembassy.gov',
     verificationStatus: VERIFICATION_STATUS.NEEDS_REVIEW,
     aliases: ['Morocco', 'Casablanca', 'MA'],
-  }),
-  buildPost({
+  },
+  {
     id: 'dz-alg',
+    postCode: 'ALG',
     label: 'U.S. Embassy Algiers',
     countryCode: 'DZ',
     city: 'Algiers',
@@ -212,8 +233,8 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+213-770-08-2000',
     website: 'https://dz.usembassy.gov',
     aliases: ['Algeria', 'Algiers', 'DZ'],
-  }),
-  buildPost({
+  },
+  {
     id: 'et-add',
     label: 'U.S. Embassy Addis Ababa',
     countryCode: 'ET',
@@ -222,9 +243,10 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+251-11-130-6000',
     website: 'https://et.usembassy.gov',
     aliases: ['Ethiopia', 'Addis Ababa', 'ET'],
-  }),
-  buildPost({
+  },
+  {
     id: 'np-ktm',
+    postCode: 'KDU',
     label: 'U.S. Embassy Kathmandu',
     countryCode: 'NP',
     city: 'Kathmandu',
@@ -232,8 +254,8 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+977-1-423-4500',
     website: 'https://np.usembassy.gov',
     aliases: ['Nepal', 'Kathmandu', 'NP'],
-  }),
-  buildPost({
+  },
+  {
     id: 'ng-abj',
     label: 'U.S. Embassy Abuja',
     countryCode: 'NG',
@@ -242,9 +264,10 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+234-9-461-4000',
     website: 'https://ng.usembassy.gov',
     aliases: ['Nigeria', 'Abuja', 'NG'],
-  }),
-  buildPost({
+  },
+  {
     id: 'ng-los',
+    postCode: 'LGS',
     label: 'U.S. Consulate General Lagos',
     countryCode: 'NG',
     city: 'Lagos',
@@ -252,8 +275,8 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+234-1-460-3400',
     website: 'https://ng.usembassy.gov/embassy-consulates/lagos',
     aliases: ['Nigeria', 'Lagos', 'NG'],
-  }),
-  buildPost({
+  },
+  {
     id: 'sn-dkr',
     label: 'U.S. Embassy Dakar',
     countryCode: 'SN',
@@ -262,8 +285,8 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+221-33-879-4000',
     website: 'https://sn.usembassy.gov',
     aliases: ['Senegal', 'Dakar', 'SN'],
-  }),
-  buildPost({
+  },
+  {
     id: 'fr-par',
     postCode: 'PRS',
     supplementUrl:
@@ -275,8 +298,8 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+33-1-43-12-22-22',
     website: 'https://fr.usembassy.gov',
     aliases: ['France', 'Paris', 'PRS'],
-  }),
-  buildPost({
+  },
+  {
     id: 'gb-lon',
     label: 'U.S. Embassy London',
     countryCode: 'GB',
@@ -285,8 +308,8 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+44-20-7499-9000',
     website: 'https://uk.usembassy.gov',
     aliases: ['United Kingdom', 'UK', 'London', 'GB', 'Britain', 'Great Britain'],
-  }),
-  buildPost({
+  },
+  {
     id: 'tr-ank',
     label: 'U.S. Embassy Ankara',
     countryCode: 'TR',
@@ -295,8 +318,8 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+90-312-455-5555',
     website: 'https://tr.usembassy.gov',
     aliases: ['Turkey', 'Ankara', 'TR', 'Türkiye'],
-  }),
-  buildPost({
+  },
+  {
     id: 'eg-cai',
     postCode: 'CRO',
     supplementUrl:
@@ -308,8 +331,8 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+20-2-2797-3300',
     website: 'https://eg.usembassy.gov',
     aliases: ['Egypt', 'Cairo', 'CRO'],
-  }),
-  buildPost({
+  },
+  {
     id: 'bd-dac',
     postCode: 'DHK',
     supplementUrl:
@@ -321,8 +344,8 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+880-2-5566-2000',
     website: 'https://bd.usembassy.gov',
     aliases: ['Bangladesh', 'Dhaka', 'DHK'],
-  }),
-  buildPost({
+  },
+  {
     id: 'de-frn',
     postCode: 'FRN',
     supplementUrl:
@@ -336,8 +359,8 @@ export const IMMIGRANT_VISA_POSTS = [
     type: 'Consulate',
     aliases: ['Germany', 'Berlin', 'Frankfurt', 'FRN', 'Deutschland', 'Frankfurt am Main'],
     notes: 'Germany immigrant visa post instructions are listed under Frankfurt in this dataset.',
-  }),
-  buildPost({
+  },
+  {
     id: 'ca-ott',
     label: 'U.S. Embassy Ottawa',
     countryCode: 'CA',
@@ -346,8 +369,8 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+1-613-688-5335',
     website: 'https://ca.usembassy.gov',
     aliases: ['Canada', 'Ottawa', 'CA'],
-  }),
-  buildPost({
+  },
+  {
     id: 'mx-mex',
     label: 'U.S. Embassy Mexico City',
     countryCode: 'MX',
@@ -356,8 +379,8 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+55-5080-2000',
     website: 'https://mx.usembassy.gov',
     aliases: ['Mexico', 'Mexico City', 'MX', 'Ciudad de México'],
-  }),
-  buildPost({
+  },
+  {
     id: 'za-jnb',
     label: 'U.S. Consulate General Johannesburg',
     countryCode: 'ZA',
@@ -366,8 +389,8 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+27-11-290-3000',
     website: 'https://za.usembassy.gov',
     aliases: ['South Africa', 'Johannesburg', 'ZA'],
-  }),
-  buildPost({
+  },
+  {
     id: 'ci-abj',
     postCode: 'ABJ',
     supplementUrl:
@@ -379,8 +402,8 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+225-22-49-40-00',
     website: 'https://ci.usembassy.gov',
     aliases: ["Côte d'Ivoire", "Cote d'Ivoire", 'Ivory Coast', 'Abidjan', 'ABJ'],
-  }),
-  buildPost({
+  },
+  {
     id: 'ph-mnl',
     label: 'U.S. Embassy Manila',
     countryCode: 'PH',
@@ -388,8 +411,8 @@ export const IMMIGRANT_VISA_POSTS = [
     address: '1201 Roxas Boulevard, Ermita, Manila 1000, Philippines',
     phone: '+63-2-5301-2000',
     website: 'https://ph.usembassy.gov',
-  }),
-  buildPost({
+  },
+  {
     id: 'pk-isl',
     label: 'U.S. Embassy Islamabad',
     countryCode: 'PK',
@@ -397,8 +420,8 @@ export const IMMIGRANT_VISA_POSTS = [
     address: 'Diplomatic Enclave, Ramna 5, Islamabad, Pakistan',
     phone: '+92-51-201-4000',
     website: 'https://pk.usembassy.gov',
-  }),
-  buildPost({
+  },
+  {
     id: 'lk-cmb',
     label: 'U.S. Embassy Colombo',
     countryCode: 'LK',
@@ -406,8 +429,8 @@ export const IMMIGRANT_VISA_POSTS = [
     address: '210 Galle Road, Colombo 03, Sri Lanka',
     phone: '+94-11-249-8500',
     website: 'https://lk.usembassy.gov',
-  }),
-  buildPost({
+  },
+  {
     id: 'vn-han',
     label: 'U.S. Embassy Hanoi',
     countryCode: 'VN',
@@ -415,8 +438,8 @@ export const IMMIGRANT_VISA_POSTS = [
     address: '170 Ngoc Khanh, Ba Dinh District, Hanoi, Vietnam',
     phone: '+84-24-3850-5000',
     website: 'https://vn.usembassy.gov',
-  }),
-  buildPost({
+  },
+  {
     id: 'th-bkk',
     label: 'U.S. Embassy Bangkok',
     countryCode: 'TH',
@@ -424,8 +447,8 @@ export const IMMIGRANT_VISA_POSTS = [
     address: '95 Wireless Road, Lumpini, Pathumwan, Bangkok 10330, Thailand',
     phone: '+66-2-205-4000',
     website: 'https://th.usembassy.gov',
-  }),
-  buildPost({
+  },
+  {
     id: 'id-jkt',
     label: 'U.S. Embassy Jakarta',
     countryCode: 'ID',
@@ -433,8 +456,8 @@ export const IMMIGRANT_VISA_POSTS = [
     address: 'Jl. Medan Merdeka Selatan 3–5, Jakarta 10110, Indonesia',
     phone: '+62-21-3435-9000',
     website: 'https://id.usembassy.gov',
-  }),
-  buildPost({
+  },
+  {
     id: 'br-bsb',
     label: 'U.S. Embassy Brasilia',
     countryCode: 'BR',
@@ -443,8 +466,8 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+55-61-3312-7000',
     website: 'https://br.usembassy.gov',
     aliases: ['Brazil', 'Brasília', 'Brasilia', 'BR'],
-  }),
-  buildPost({
+  },
+  {
     id: 'co-bog',
     label: 'U.S. Embassy Bogotá',
     countryCode: 'CO',
@@ -453,8 +476,8 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+57-601-275-2000',
     website: 'https://co.usembassy.gov',
     aliases: ['Colombia', 'Bogotá', 'Bogota', 'CO'],
-  }),
-  buildPost({
+  },
+  {
     id: 'do-sdq',
     label: 'U.S. Embassy Santo Domingo',
     countryCode: 'DO',
@@ -463,8 +486,8 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+1-809-567-7775',
     website: 'https://do.usembassy.gov',
     aliases: ['Dominican Republic', 'Dominicana', 'Santo Domingo', 'DO', 'DR'],
-  }),
-  buildPost({
+  },
+  {
     id: 'cu-hav',
     label: 'U.S. Embassy Havana',
     countryCode: 'CU',
@@ -472,8 +495,8 @@ export const IMMIGRANT_VISA_POSTS = [
     address: 'Calzada between L & M Streets, Vedado, Havana, Cuba',
     phone: '+53-7-839-4100',
     website: 'https://cu.usembassy.gov',
-  }),
-  buildPost({
+  },
+  {
     id: 'jm-kng',
     label: 'U.S. Embassy Kingston',
     countryCode: 'JM',
@@ -481,8 +504,8 @@ export const IMMIGRANT_VISA_POSTS = [
     address: '142 Old Hope Road, Kingston 6, Jamaica',
     phone: '+1-876-702-6000',
     website: 'https://jm.usembassy.gov',
-  }),
-  buildPost({
+  },
+  {
     id: 'sa-ruh',
     label: 'U.S. Embassy Riyadh',
     countryCode: 'SA',
@@ -490,8 +513,8 @@ export const IMMIGRANT_VISA_POSTS = [
     address: 'Collector Road M, Riyadh Diplomatic Quarter, Riyadh, Saudi Arabia',
     phone: '+966-11-488-3800',
     website: 'https://sa.usembassy.gov',
-  }),
-  buildPost({
+  },
+  {
     id: 'il-tlv',
     label: 'U.S. Embassy Jerusalem',
     countryCode: 'IL',
@@ -499,8 +522,8 @@ export const IMMIGRANT_VISA_POSTS = [
     address: '14 David Flusser St., Arnona, Jerusalem 9378322, Israel',
     phone: '+972-2-630-4000',
     website: 'https://il.usembassy.gov',
-  }),
-  buildPost({
+  },
+  {
     id: 'pl-waw',
     label: 'U.S. Embassy Warsaw',
     countryCode: 'PL',
@@ -508,8 +531,8 @@ export const IMMIGRANT_VISA_POSTS = [
     address: 'Aleje Ujazdowskie 29/31, 00-540 Warsaw, Poland',
     phone: '+48-22-504-2000',
     website: 'https://pl.usembassy.gov',
-  }),
-  buildPost({
+  },
+  {
     id: 'ua-kyv',
     label: 'U.S. Embassy Kyiv',
     countryCode: 'UA',
@@ -517,8 +540,8 @@ export const IMMIGRANT_VISA_POSTS = [
     address: '4 Igor Sikorsky St., 04112 Kyiv, Ukraine (verify current operations on usembassy.gov)',
     phone: '+380-44-521-5000',
     website: 'https://ua.usembassy.gov',
-  }),
-  buildPost({
+  },
+  {
     id: 'ru-mow',
     label: 'U.S. Embassy Moscow',
     countryCode: 'RU',
@@ -526,8 +549,8 @@ export const IMMIGRANT_VISA_POSTS = [
     address: 'Bolshoy Deviatinsky Pereulok No. 8, 119121 Moscow, Russia (verify current services)',
     phone: '+7-495-728-5000',
     website: 'https://ru.usembassy.gov',
-  }),
-  buildPost({
+  },
+  {
     id: 'cn-bej',
     label: 'U.S. Embassy Beijing',
     countryCode: 'CN',
@@ -535,8 +558,8 @@ export const IMMIGRANT_VISA_POSTS = [
     address: '55 An Jia Lou Lu, Chaoyang District, Beijing 100600, China',
     phone: '+86-10-8531-3000',
     website: 'https://china.usembassy.gov',
-  }),
-  buildPost({
+  },
+  {
     id: 'jp-tky',
     label: 'U.S. Embassy Tokyo',
     countryCode: 'JP',
@@ -544,8 +567,8 @@ export const IMMIGRANT_VISA_POSTS = [
     address: '1-10-5 Akasaka, Minato-ku, Tokyo 107-8420, Japan',
     phone: '+81-3-3224-5000',
     website: 'https://jp.usembassy.gov',
-  }),
-  buildPost({
+  },
+  {
     id: 'kr-seo',
     label: 'U.S. Embassy Seoul',
     countryCode: 'KR',
@@ -553,8 +576,8 @@ export const IMMIGRANT_VISA_POSTS = [
     address: '188 Sejong-daero, Jongno-gu, Seoul 03141, Republic of Korea',
     phone: '+82-2-397-4114',
     website: 'https://kr.usembassy.gov',
-  }),
-  buildPost({
+  },
+  {
     id: 'au-can',
     label: 'U.S. Embassy Canberra',
     countryCode: 'AU',
@@ -562,8 +585,50 @@ export const IMMIGRANT_VISA_POSTS = [
     address: 'Moonah Place, Yarralumla, ACT 2600, Australia',
     phone: '+61-2-6214-5600',
     website: 'https://au.usembassy.gov',
-  }),
-].sort((a, b) => a.name.localeCompare(b.name, 'en'))
+  },
+]
+
+const enrichByPostCode = new Map()
+for (const raw of FALLBACK_SEED_RAW) {
+  if (raw.postCode) {
+    enrichByPostCode.set(String(raw.postCode).toUpperCase(), {
+      id: raw.id,
+      label: raw.label,
+      address: raw.address,
+      phone: raw.phone,
+      website: raw.website,
+      countryCode: raw.countryCode,
+    })
+  }
+}
+
+const mergedImportRows = mergeGeneratedPostsWithOverrides(
+  GENERATED_TRAVEL_STATE_POSTS,
+  MANUAL_POST_OVERRIDES
+)
+const importedPostCodes = new Set(
+  mergedImportRows.map((r) => String(r.postCode || '').toUpperCase())
+)
+
+const fromTravelStateImport = mergedImportRows.map((row) =>
+  mergedImportRowToImmigrantVisaPost(
+    row,
+    enrichByPostCode.get(String(row.postCode).toUpperCase()) ?? null
+  )
+)
+
+const fallbackPosts = FALLBACK_SEED_RAW.filter((raw) => {
+  const pc = raw.postCode ? String(raw.postCode).toUpperCase() : ''
+  if (pc && importedPostCodes.has(pc)) return false
+  return true
+}).map(buildPost)
+
+/** @type {ImmigrantVisaPost[]} */
+export const IMMIGRANT_VISA_POSTS = [...fromTravelStateImport, ...fallbackPosts].sort((a, b) => {
+  const c = a.country.localeCompare(b.country, 'en')
+  if (c !== 0) return c
+  return a.city.localeCompare(b.city, 'en')
+})
 
 /** @param {string} id */
 export function getImmigrantPostById(id) {
@@ -602,13 +667,31 @@ export function filterImmigrantPosts(query) {
 export function getPostVerificationStats() {
   const total = IMMIGRANT_VISA_POSTS.length
   const withDirect = IMMIGRANT_VISA_POSTS.filter((p) => p.supplementUrl).length
+  const importedDirectSupplements = IMMIGRANT_VISA_POSTS.filter(
+    (p) => p.verificationStatus === VERIFICATION_STATUS.DIRECT_SUPPLEMENT_IMPORTED
+  ).length
+  const manualOverridesCount = MANUAL_POST_OVERRIDES.length
+  const needsCountryReviewCount = IMMIGRANT_VISA_POSTS.filter((p) => p.needsCountryReview).length
   const generalListOnly = IMMIGRANT_VISA_POSTS.filter(
     (p) => p.verificationStatus === VERIFICATION_STATUS.GENERAL_LIST_ONLY
   ).length
   const needsReview = IMMIGRANT_VISA_POSTS.filter(
     (p) => p.verificationStatus === VERIFICATION_STATUS.NEEDS_REVIEW
   ).length
-  return { total, withDirect, generalListOnly, needsReview }
+  const meta = GENERATED_TRAVEL_STATE_IMPORT_META
+  const importFetchOk =
+    meta?.fetchOk !== false && GENERATED_TRAVEL_STATE_POSTS.length > 0
+  return {
+    total,
+    withDirect,
+    importedDirectSupplements,
+    manualOverridesCount,
+    needsCountryReviewCount,
+    generalListOnly,
+    needsReview,
+    importFetchOk,
+    importSupplementLinkCount: meta?.supplementLinkCount ?? GENERATED_TRAVEL_STATE_POSTS.length,
+  }
 }
 
 export function getPostsNeedingSupplementVerification() {

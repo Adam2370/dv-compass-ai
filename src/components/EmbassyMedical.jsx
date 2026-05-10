@@ -44,7 +44,7 @@ export function EmbassyMedical() {
             placeholder={t('roadmap.embassySearch')}
             noResultsText={t('common.noMatches')}
           />
-          {post?.id === 'de-frn' ? (
+          {post?.postCode === 'FRN' || post?.id === 'de-frn' ? (
             <p className={`mt-3 text-xs leading-relaxed ${muted}`}>{t('embassy.germanyDatasetNote')}</p>
           ) : null}
         </div>
