@@ -1,69 +1,60 @@
+import { useMemo, useState } from 'react'
+import { genericGuideSections, getGuideSections, hasDetailedGuide } from '../content/countryGuideContent'
 import { useLanguage } from '../hooks/useLanguage'
-import { countryList } from '../data/countries'
+import { card, heading, input, muted } from '../theme/ui'
+import { ALL_COUNTRY_CODES, countryLabel } from '../utils/countries'
 import { SectionHeading } from './SectionHeading'
 
-function CountryCard({ name }) {
-  return (
-    <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 md:p-8 backdrop-blur-md hover:border-violet-400/30 transition-colors">
-      <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-        <span className="h-2 w-2 rounded-full bg-violet-400 shadow-[0_0_12px_rgba(167,139,250,0.8)]" />
-        {name}
-      </h3>
-      <div className="space-y-6 text-sm text-slate-400">
-        {[
-          {
-            h: 'Passport information',
-            lines: ['Where to apply (placeholder)', 'Processing notes: plan ahead for peak seasons', 'Official link placeholder'],
-          },
-          {
-            h: 'Police certificate',
-            lines: ['Who needs it depends on age and residence history', 'Obtain through official national channels', 'Common delays: name variations, backlog seasons'],
-          },
-          {
-            h: 'Birth certificate',
-            lines: ['Acceptable formats per reciprocity schedule', 'Replacement process varies—start early'],
-          },
-          {
-            h: 'Marriage / divorce documents',
-            lines: ['Required formats for registration systems', 'Certified translations if not in English'],
-          },
-          {
-            h: 'Education documents',
-            lines: ['Diplomas and transcripts', 'Equivalency notes where applicable'],
-          },
-          {
-            h: 'Translation rules',
-            lines: ['Certified translations when required', 'English-language packaging for interview binders'],
-          },
-          {
-            h: 'Embassy notes',
-            lines: ['Common interview languages vary by post', 'Arrive per appointment instructions; verify security rules'],
-          },
-        ].map((block) => (
-          <div key={block.h}>
-            <h4 className="text-slate-200 font-medium mb-2">{block.h}</h4>
-            <ul className="list-disc ps-5 space-y-1">
-              {block.lines.map((l) => (
-                <li key={l}>{l}</li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-    </article>
-  )
-}
-
 export function CountryGuides() {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
+  const [q, setQ] = useState('')
+  const [iso, setIso] = useState('CM')
+
+  const filteredCodes = useMemo(() => {
+    const s = q.trim().toLowerCase()
+    if (!s) return ALL_COUNTRY_CODES
+    return ALL_COUNTRY_CODES.filter((code) => {
+      const name = countryLabel(code, lang).toLowerCase()
+      return name.includes(s) || code.toLowerCase().includes(s)
+    })
+  }, [q, lang])
+
+  const sections = hasDetailedGuide(iso) ? getGuideSections(iso, lang) : genericGuideSections(countryLabel(iso, lang), lang)
+
   return (
     <section id="countries" className="py-20 md:py-28">
       <div className="mx-auto max-w-6xl px-4">
         <SectionHeading title={t('countryGuides.title')} subtitle={t('countryGuides.subtitle')} />
-        <p className="text-center text-sm text-violet-200/90 mb-10 max-w-2xl mx-auto">{t('countrySoon')}</p>
-        <div className="grid gap-6 md:grid-cols-2">
-          {countryList.map((c) => (
-            <CountryCard key={c} name={c} />
+
+        <div className={`${card} p-6 md:p-8 mb-10 max-w-xl`}>
+          <label className={`block text-sm font-medium mb-2 ${heading}`}>{t('countryGuides.pick')}</label>
+          <input type="search" className={`${input} mb-2`} value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('countryGuides.search')} />
+          <select className={input} value={iso} onChange={(e) => setIso(e.target.value)}>
+            {filteredCodes.map((code) => (
+              <option key={code} value={code}>
+                {countryLabel(code, lang)} ({code})
+              </option>
+            ))}
+          </select>
+          <a
+            className="mt-4 inline-flex text-sm font-semibold text-violet-600 dark:text-violet-300 hover:underline"
+            href="https://travel.state.gov/content/travel/en/us-visas/visa-information-resources/fees/reciprocity-by-country.html"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {t('countryGuides.openReciprocity')}
+          </a>
+        </div>
+
+        <h3 className={`text-xl font-semibold mb-6 ${heading}`}>
+          {t('countryGuides.detailTitle')}: {countryLabel(iso, lang)}
+        </h3>
+        <div className="grid gap-6">
+          {sections.map((block) => (
+            <article key={block.key} className={`${card} p-6 md:p-8`}>
+              <h4 className={`text-lg font-semibold mb-3 ${heading}`}>{block.title}</h4>
+              <p className={`text-sm leading-relaxed whitespace-pre-line ${muted}`}>{block.body}</p>
+            </article>
           ))}
         </div>
       </div>

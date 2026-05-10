@@ -1,4 +1,6 @@
+import { Link } from 'react-router-dom'
 import { useLanguage } from '../hooks/useLanguage'
+import { card, heading, muted } from '../theme/ui'
 import { SectionHeading } from './SectionHeading'
 
 const icons = [
@@ -39,16 +41,16 @@ const icons = [
 export function JourneyStages() {
   const { t } = useLanguage()
   const cards = [
-    { title: t('journey.c1t'), desc: t('journey.c1d'), href: '#dv-process' },
-    { title: t('journey.c2t'), desc: t('journey.c2d'), href: '#ds-260' },
-    { title: t('journey.c3t'), desc: t('journey.c3d'), href: '#roadmap' },
-    { title: t('journey.c4t'), desc: t('journey.c4d'), href: '#embassy' },
-    { title: t('journey.c5t'), desc: t('journey.c5d'), href: '#life-america' },
-    { title: t('journey.c6t'), desc: t('journey.c6d'), href: '#life-america' },
+    { title: t('journey.c1t'), desc: t('journey.c1d'), to: '/dv-process' },
+    { title: t('journey.c2t'), desc: t('journey.c2d'), to: '/ds-260' },
+    { title: t('journey.c3t'), desc: t('journey.c3d'), to: '/roadmap' },
+    { title: t('journey.c4t'), desc: t('journey.c4d'), to: '/embassy-medical' },
+    { title: t('journey.c5t'), desc: t('journey.c5d'), to: '/life-america' },
+    { title: t('journey.c6t'), desc: t('journey.c6d'), to: '/life-america' },
   ]
 
   return (
-    <section id="journey" className="py-20 md:py-28 border-t border-white/5">
+    <section id="journey" className="py-20 md:py-28 border-t border-slate-200/80 dark:border-white/5">
       <div className="mx-auto max-w-6xl px-4">
         <SectionHeading title={t('journey.title')} subtitle={t('journey.subtitle')} />
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -57,20 +59,20 @@ export function JourneyStages() {
             return (
               <div
                 key={c.title}
-                className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-md hover:border-violet-400/35 hover:bg-white/[0.06] transition-all duration-300 hover:-translate-y-0.5"
+                className={`${card} group relative overflow-hidden p-6 hover:border-violet-400/35 transition-all duration-300 hover:-translate-y-0.5`}
               >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500/30 to-indigo-500/20 text-violet-200 ring-1 ring-white/10">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500/25 to-indigo-500/15 text-violet-700 dark:text-violet-200 ring-1 ring-violet-200/50 dark:ring-white/10">
                   <Icon className="h-6 w-6" />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">{c.title}</h3>
-                <p className="text-sm text-slate-400 leading-relaxed mb-6">{c.desc}</p>
-                <a
-                  href={c.href}
-                  className="inline-flex text-sm font-semibold text-violet-300 hover:text-violet-200 transition-colors"
+                <h3 className={`text-lg font-semibold mb-2 ${heading}`}>{c.title}</h3>
+                <p className={`text-sm leading-relaxed mb-6 ${muted}`}>{c.desc}</p>
+                <Link
+                  to={c.to}
+                  className="inline-flex text-sm font-semibold text-violet-600 dark:text-violet-300 hover:text-violet-500 dark:hover:text-violet-200 transition-colors"
                 >
                   {t('common.viewSteps')}
                   <span className="ms-1 group-hover:translate-x-0.5 transition-transform rtl:rotate-180">→</span>
-                </a>
+                </Link>
               </div>
             )
           })}

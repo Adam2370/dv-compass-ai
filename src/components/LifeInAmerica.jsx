@@ -1,113 +1,68 @@
+import { useMemo } from 'react'
 import { useLanguage } from '../hooks/useLanguage'
+import { card, heading, muted } from '../theme/ui'
 import { SectionHeading } from './SectionHeading'
-
-const phases = [
-  {
-    title: 'First 7 Days',
-    items: [
-      'Secure temporary housing',
-      'Buy a SIM card and test connectivity',
-      'Understand local transportation options',
-      'Organize immigration documents in a waterproof pouch',
-      'Learn emergency contacts (911, local hospitals)',
-    ],
-  },
-  {
-    title: 'First 30 Days',
-    items: [
-      'Apply for SSN if eligible and directed',
-      'Open a bank account with required IDs',
-      'Understand monthly budgeting (rent, food, transport)',
-      'Explore job opportunities and networking channels',
-      'Learn transit passes, rideshare safety, and commute patterns',
-    ],
-  },
-  {
-    title: 'First 90 Days',
-    items: [
-      'Start building credit responsibly (secured cards if needed)',
-      'Learn basics of federal/state taxes and withholding',
-      'Improve English through classes or conversation partners',
-      'Build community through cultural centers or faith groups',
-      'Understand healthcare: insurance, urgent care vs ER',
-      'Obtain driver license or state ID per DMV rules',
-    ],
-  },
-  {
-    title: 'First 100 Days',
-    items: [
-      'Stabilize housing and roommate agreements',
-      'Improve income through training or better roles',
-      'Clarify long-term goals (education, certification, family reunification)',
-      'Avoid debt traps (predatory loans, high-interest cards)',
-      'Create a simple written financial plan',
-    ],
-  },
-]
-
-const states = [
-  { name: 'California', dmv: 'DMV placeholder', col: 'High variability by metro', transit: 'Strong transit in major cities', housing: 'Competitive in coastal hubs', community: 'Large diaspora networks', jobs: 'Diverse industries' },
-  { name: 'Texas', dmv: 'DMV placeholder', col: 'Generally lower than coastal CA', transit: 'Car-dependent in most cities', housing: 'Growing metros—plan ahead', community: 'Growing immigrant hubs', jobs: 'Energy, tech, healthcare' },
-  { name: 'New Jersey', dmv: 'DMV placeholder', col: 'High near NYC corridor', transit: 'NYC access via PATH/NJ Transit', housing: 'Dense—research towns carefully', community: 'Diverse suburban networks', jobs: 'Pharma, logistics, NYC commute' },
-  { name: 'Georgia', dmv: 'DMV placeholder', col: 'Atlanta vs rural spread', transit: 'Mixed; car common outside core', housing: 'Atlanta competitive pockets', community: 'Active cultural associations', jobs: 'Airport, film, corporate HQs' },
-  { name: 'New York', dmv: 'DMV placeholder', col: 'Very high in NYC', transit: 'Extensive subway and bus', housing: 'Roommates often necessary', community: 'Neighborhood-level diversity', jobs: 'Finance, healthcare, gig economy' },
-  { name: 'Maryland', dmv: 'DMV placeholder', col: 'Elevated near DC', transit: 'Metro access in pockets', housing: 'Research school districts if relevant', community: 'Federal city corridor diversity', jobs: 'Federal contractors, biotech' },
-]
 
 export function LifeInAmerica() {
   const { t } = useLanguage()
+  const phases = useMemo(() => {
+    const p = t('lifeAmerica.phases')
+    return Array.isArray(p) ? p : []
+  }, [t])
+  const states = useMemo(() => {
+    const s = t('lifeAmerica.states')
+    return Array.isArray(s) ? s : []
+  }, [t])
+
   return (
-    <section id="life-america" className="py-20 md:py-28 border-t border-white/5 bg-slate-950/50">
+    <section id="life-america" className="py-20 md:py-28 border-t border-slate-200/80 dark:border-white/5 bg-slate-100/50 dark:bg-slate-950/50">
       <div className="mx-auto max-w-6xl px-4">
         <SectionHeading title={t('lifeAmerica.title')} subtitle={t('lifeAmerica.subtitle')} />
 
         <div className="grid md:grid-cols-2 gap-6 mb-16">
-          {phases.map((p) => (
-            <div
-              key={p.title}
-              className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 md:p-8 backdrop-blur-md"
-            >
-              <h3 className="text-lg font-semibold text-white mb-4">{p.title}</h3>
-              <ul className="text-sm text-slate-400 space-y-2 list-disc ps-5">
-                {p.items.map((it) => (
-                  <li key={it}>{it}</li>
+          {phases.map((p, i) => (
+            <div key={`phase-${i}`} className={`${card} p-6 md:p-8`}>
+              <h3 className={`text-lg font-semibold mb-4 ${heading}`}>{p.title}</h3>
+              <ul className={`text-sm space-y-2 list-disc ps-5 ${muted}`}>
+                {(Array.isArray(p.items) ? p.items : []).map((it, j) => (
+                  <li key={`phase-${i}-it-${j}`}>{it}</li>
                 ))}
               </ul>
             </div>
           ))}
         </div>
 
-        <h3 className="text-2xl font-semibold text-white text-center mb-8">{t('statesTitle')}</h3>
+        <h3 className={`text-2xl font-semibold text-center mb-8 ${heading}`}>{t('statesTitle')}</h3>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {states.map((s) => (
             <article
-              key={s.name}
-              className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.05] to-transparent p-6 hover:border-teal-400/30 transition-colors"
+              key={s.id}
+              className={`${card} bg-gradient-to-br from-teal-50/80 to-white dark:from-white/[0.05] dark:to-transparent p-6 hover:border-teal-400/40 transition-colors`}
             >
-              <h4 className="text-lg font-semibold text-teal-200 mb-3">{s.name}</h4>
-              <dl className="text-xs text-slate-400 space-y-2">
+              <h4 className="text-lg font-semibold text-teal-800 dark:text-teal-200 mb-3">{s.name}</h4>
+              <dl className={`text-xs space-y-2 ${muted}`}>
                 <div>
-                  <dt className="text-slate-500">DMV</dt>
+                  <dt className="text-slate-500 dark:text-slate-500">{t('lifeAmerica.dt.dmv')}</dt>
                   <dd>{s.dmv}</dd>
                 </div>
                 <div>
-                  <dt className="text-slate-500">Cost of living</dt>
+                  <dt className="text-slate-500">{t('lifeAmerica.dt.costOfLiving')}</dt>
                   <dd>{s.col}</dd>
                 </div>
                 <div>
-                  <dt className="text-slate-500">Transportation</dt>
+                  <dt className="text-slate-500">{t('lifeAmerica.dt.transportation')}</dt>
                   <dd>{s.transit}</dd>
                 </div>
                 <div>
-                  <dt className="text-slate-500">Housing</dt>
+                  <dt className="text-slate-500">{t('lifeAmerica.dt.housing')}</dt>
                   <dd>{s.housing}</dd>
                 </div>
                 <div>
-                  <dt className="text-slate-500">Immigrant communities</dt>
+                  <dt className="text-slate-500">{t('lifeAmerica.dt.immigrantCommunities')}</dt>
                   <dd>{s.community}</dd>
                 </div>
                 <div>
-                  <dt className="text-slate-500">Job market</dt>
+                  <dt className="text-slate-500">{t('lifeAmerica.dt.jobMarket')}</dt>
                   <dd>{s.jobs}</dd>
                 </div>
               </dl>
