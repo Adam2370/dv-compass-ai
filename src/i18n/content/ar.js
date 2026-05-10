@@ -240,5 +240,71 @@ export const arOverlay = {
       'سجلات قضائية / عسكرية إن انطبق',
       'ترجمات معتمدة إن انطبق',
     ],
+    militaryNone: 'لا يوجد / لا ينطبق',
+  },
+  homeUpdates: {
+    title: 'تحديثات الهجرة وقرعة التنوع الرسمية',
+    badgeOfficialOnly: 'مصادر رسمية فقط',
+    badgeLiveSoon: 'مراقبة مباشرة قريباً',
+    staticNote:
+      'روابط ثابتة لمصادر رسمية في الإصدار v0.2. ستُضاف المراقبة المباشرة وملخصات الذكاء الاصطناعي لاحقاً.',
+    readOfficial: 'قراءة المصدر الرسمي',
+    audienceLabel: 'الجمهور',
+    dateLabel: 'التاريخ',
+    datePlaceholder: 'راجع النشر الرسمي',
+    items: [
+      {
+        category: 'برنامج DV',
+        title: 'تعليمات برنامج التأشيرات المتنوعة',
+        summary:
+          'تشرح التعليمات الرسمية الأهلية وقواعد المشاركة ومعايير الصور وكيفية التقديم عبر النظام المصرح به.',
+        source: 'وزارة الخارجية الأمريكية',
+        link: 'https://travel.state.gov/content/travel/en/us-visas/immigrate/diversity-visa-program-entry.html',
+        audience: 'المتقدمون',
+      },
+      {
+        category: 'التحقق من حالة المشارك',
+        title: 'تحققوا من نتيجة DV عبر البوابة الرسمية فقط',
+        summary:
+          'يجب التحقق من حالة الاختيال عبر موقع التحقق الرسمي فقط والحفاظ على سرية رقم التأكيد.',
+        source: 'وزارة الخارجية الأمريكية',
+        link: 'https://dvprogram.state.gov/',
+        audience: 'المتقدمون / المختارون',
+      },
+      {
+        category: 'DS-260',
+        title: 'طلب تأشيرة الهجرة عبر الإنترنت',
+        summary: 'يكمل المختارون نموذج DS-260 عبر CEAC ضمن معالجة تأشيرة الهجرة.',
+        source: 'المركز الإلكتروني للطلبات القنصلية',
+        link: 'https://ceac.state.gov/IV/Login.aspx',
+        audience: 'المختارون',
+      },
+      {
+        category: 'نشرة التأشيرات',
+        title: 'متابعة تقدم أرقام الحالات',
+        summary:
+          'تساعد نشرة التأشيرات مقدمي DV على فهم حركة الأرقام حسب المنطقة وتوقيت أهلية المقابلة.',
+        source: 'وزارة الخارجية الأمريكية',
+        link: 'https://travel.state.gov/content/travel/en/us-visas/visa-information-resources/visa-bulletin.html',
+        audience: 'المختارون',
+      },
+      {
+        category: 'الوثائق المدنية',
+        title: 'قواعد الوثائق حسب البلد',
+        summary:
+          'توضح صفحة التعامل المتبادل والوثائق المدنية الإرشادات لكل بلد بشأن الميلاد والشرطة والزواج والخدمة العسكرية والمحاكم وغيرها.',
+        source: 'وزارة الخارجية الأمريكية',
+        link: 'https://travel.state.gov/content/travel/en/us-visas/Visa-Reciprocity-and-Civil-Documents-by-Country.html',
+        audience: 'تجهيز الوثائق',
+      },
+      {
+        category: 'مهاجرون جدد',
+        title: 'الاستقرار في الولايات المتحدة',
+        summary: 'تقدم USCIS إرشادات رسمية للمهاجرين الجدد حول الحقوق والمسؤوليات والاستقرار.',
+        source: 'USCIS',
+        link: 'https://www.uscis.gov/tools/settling-in-the-us',
+        audience: 'موافقة على التأشيرة / وافدون جدد',
+      },
+    ],
   },
 }

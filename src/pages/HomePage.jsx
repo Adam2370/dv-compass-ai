@@ -1,10 +1,10 @@
-import { Hero } from '../components/Hero'
+import { HomeHero } from '../components/HomeHero'
 import { JourneyStages } from '../components/JourneyStages'
 
 export function HomePage() {
   return (
     <>
-      <Hero />
+      <HomeHero />
       <JourneyStages />
     </>
   )

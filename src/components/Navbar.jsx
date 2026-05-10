@@ -13,7 +13,6 @@ const links = [
   { to: '/embassy-medical', key: 'nav.embassy' },
   { to: '/interviews', key: 'nav.interviews' },
   { to: '/life-america', key: 'nav.life' },
-  { to: '/news', key: 'nav.news' },
   { to: '/ask-ai', key: 'nav.askAi' },
   { to: '/resources', key: 'nav.resources' },
   { to: '/community', key: 'nav.community' },

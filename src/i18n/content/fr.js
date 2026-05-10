@@ -269,5 +269,72 @@ simplifie les étapes et aide à avancer sereinement.`,
       'Jugements / dossiers militaires si applicable',
       'Traductions certifiées si applicable',
     ],
+    militaryNone: 'Aucun / sans objet',
+  },
+  homeUpdates: {
+    title: 'Actualités officielles immigration & DV',
+    badgeOfficialOnly: 'Sources officielles uniquement',
+    badgeLiveSoon: 'Surveillance en direct bientôt',
+    staticNote:
+      'Liens statiques vers des sources officielles pour la v0.2. Surveillance en direct et résumés IA seront ajoutés plus tard.',
+    readOfficial: 'Lire la source officielle',
+    audienceLabel: 'Public',
+    dateLabel: 'Date',
+    datePlaceholder: 'Voir la publication officielle',
+    items: [
+      {
+        category: 'Programme DV',
+        title: 'Instructions du programme Diversity Visa',
+        summary:
+          'Les instructions officielles décrivent l’éligibilité, les règles de participation, les normes photo et la procédure via le système autorisé.',
+        source: 'Département d’État des États-Unis',
+        link: 'https://travel.state.gov/content/travel/en/us-visas/immigrate/diversity-visa-program-entry.html',
+        audience: 'Candidats',
+      },
+      {
+        category: 'Vérification du statut',
+        title: 'Vérifiez la sélection DV uniquement sur le portail officiel',
+        summary:
+          'Les candidats doivent vérifier leur statut uniquement via le site officiel Entrant Status Check et protéger leur numéro de confirmation.',
+        source: 'Département d’État des États-Unis',
+        link: 'https://dvprogram.state.gov/',
+        audience: 'Candidats / Sélectionnés',
+      },
+      {
+        category: 'DS-260',
+        title: 'Demande de visa d’immigrant en ligne',
+        summary: 'Les personnes sélectionnées complètent le DS-260 via le CEAC dans le cadre du traitement du visa d’immigrant.',
+        source: 'Centre électronique des demandes consulaires (CEAC)',
+        link: 'https://ceac.state.gov/IV/Login.aspx',
+        audience: 'Sélectionnés',
+      },
+      {
+        category: 'Visa Bulletin',
+        title: 'Suivre l’avancement des numéros de cas',
+        summary:
+          'Le Visa Bulletin aide les candidats DV à comprendre l’évolution des numéros par région et le calendrier d’éligibilité à l’entretien.',
+        source: 'Département d’État des États-Unis',
+        link: 'https://travel.state.gov/content/travel/en/us-visas/visa-information-resources/visa-bulletin.html',
+        audience: 'Sélectionnés',
+      },
+      {
+        category: 'Documents civils',
+        title: 'Règles documentaires par pays',
+        summary:
+          'La page Réciprocité et documents civils donne des indications par pays pour naissance, police, mariage, militaire, justice, etc.',
+        source: 'Département d’État des États-Unis',
+        link: 'https://travel.state.gov/content/travel/en/us-visas/Visa-Reciprocity-and-Civil-Documents-by-Country.html',
+        audience: 'Préparation des documents',
+      },
+      {
+        category: 'Nouveaux immigrants',
+        title: 'S’installer aux États-Unis',
+        summary:
+          'L’USCIS fournit des informations officielles pour les nouveaux immigrants sur droits, responsabilités et installation.',
+        source: 'USCIS',
+        link: 'https://www.uscis.gov/tools/settling-in-the-us',
+        audience: 'Visa approuvé / Nouveaux arrivants',
+      },
+    ],
   },
 }

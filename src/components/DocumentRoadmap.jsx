@@ -1,12 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { genericGuideSections, getGuideSections, hasDetailedGuide } from '../content/countryGuideContent'
-import { postById } from '../data/usEmbassies'
+import { postById, US_OVERSEAS_POSTS } from '../data/usEmbassies'
 import { useLanguage } from '../hooks/useLanguage'
 import { card, heading, input, muted, mutedSm, select } from '../theme/ui'
-import { countryLabel } from '../utils/countries'
-import { EmbassyCombobox } from './EmbassyCombobox'
-import { MultiCountryPicker } from './MultiCountryPicker'
-import { SearchableCountrySelect } from './SearchableCountrySelect'
+import { ALL_COUNTRY_CODES, countryLabel } from '../utils/countries'
+import { SearchableMultiSelect } from './SearchableMultiSelect'
+import { SearchableSelect } from './SearchableSelect'
 import { SectionHeading } from './SectionHeading'
 
 const DEFAULT = {
@@ -14,8 +13,8 @@ const DEFAULT = {
   birthCountry: 'CM',
   residence: 'AE',
   lived: ['CM', 'IN', 'AE'],
-  studied: 'IN',
-  worked: 'AE',
+  studied: ['IN'],
+  worked: ['AE'],
   maritalNote: '',
   military: '',
   embassyPostId: 'ae-abd',
@@ -31,12 +30,25 @@ function uniqueIso(list) {
 export function DocumentRoadmap() {
   const { t, lang } = useLanguage()
   const [form, setForm] = useState(DEFAULT)
-  const [livedOpen, setLivedOpen] = useState(false)
 
   const eduLevels = t('roadmap.educationLevels')
   const eduList = Array.isArray(eduLevels) ? eduLevels : []
 
   const embassy = postById(form.embassyPostId)
+
+  const countryOptions = useMemo(() => [...ALL_COUNTRY_CODES], [])
+  const countryItemLabel = useCallback((code) => `${countryLabel(code, lang)} (${code})`, [lang])
+
+  const militaryOptions = useMemo(
+    () => [
+      { value: '', label: t('roadmap.militaryNone') },
+      ...ALL_COUNTRY_CODES.map((code) => ({
+        value: code,
+        label: countryItemLabel(code),
+      })),
+    ],
+    [t, countryItemLabel]
+  )
 
   const derivedCountries = useMemo(() => {
     return uniqueIso([
@@ -44,8 +56,9 @@ export function DocumentRoadmap() {
       form.birthCountry,
       form.residence,
       ...form.lived,
-      form.studied,
-      form.worked,
+      ...form.studied,
+      ...form.worked,
+      ...(form.military ? [form.military] : []),
     ])
   }, [form])
 
@@ -61,62 +74,73 @@ export function DocumentRoadmap() {
 
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
           <div className={`${card} p-6 md:p-8 space-y-4`}>
-            <Field label={t('roadmap.nationality')}>
-              <SearchableCountrySelect
-                id="nat"
-                lang={lang}
-                value={form.nationality}
-                onChange={(v) => setForm((f) => ({ ...f, nationality: v }))}
-                placeholder={t('roadmap.selectCountry')}
-              />
-            </Field>
-            <Field label={t('roadmap.birthCountry')}>
-              <SearchableCountrySelect
-                id="birth"
-                lang={lang}
-                value={form.birthCountry}
-                onChange={(v) => setForm((f) => ({ ...f, birthCountry: v }))}
-                placeholder={t('roadmap.selectCountry')}
-              />
-            </Field>
-            <Field label={t('roadmap.residence')}>
-              <SearchableCountrySelect
-                id="res"
-                lang={lang}
-                value={form.residence}
-                onChange={(v) => setForm((f) => ({ ...f, residence: v }))}
-                placeholder={t('roadmap.selectCountry')}
-              />
-            </Field>
-            <Field label={t('roadmap.lived')}>
-              <button
-                type="button"
-                onClick={() => setLivedOpen(true)}
-                className={`${input} text-start cursor-pointer`}
-              >
-                {form.lived.length
-                  ? form.lived.map((c) => countryLabel(c, lang)).join(', ')
-                  : t('roadmap.selectCountry')}
-              </button>
-            </Field>
-            <Field label={t('roadmap.studied')}>
-              <SearchableCountrySelect
-                id="stu"
-                lang={lang}
-                value={form.studied}
-                onChange={(v) => setForm((f) => ({ ...f, studied: v }))}
-                placeholder={t('roadmap.selectCountry')}
-              />
-            </Field>
-            <Field label={t('roadmap.worked')}>
-              <SearchableCountrySelect
-                id="work"
-                lang={lang}
-                value={form.worked}
-                onChange={(v) => setForm((f) => ({ ...f, worked: v }))}
-                placeholder={t('roadmap.selectCountry')}
-              />
-            </Field>
+            <SearchableSelect
+              label={t('roadmap.nationality')}
+              id="roadmap-nationality"
+              value={form.nationality}
+              onChange={(v) => setForm((f) => ({ ...f, nationality: v }))}
+              options={countryOptions}
+              getOptionValue={(c) => c}
+              getOptionLabel={countryItemLabel}
+              placeholder={t('roadmap.selectCountry')}
+              noResultsText={t('common.noMatches')}
+            />
+            <SearchableSelect
+              label={t('roadmap.birthCountry')}
+              id="roadmap-birth"
+              value={form.birthCountry}
+              onChange={(v) => setForm((f) => ({ ...f, birthCountry: v }))}
+              options={countryOptions}
+              getOptionValue={(c) => c}
+              getOptionLabel={countryItemLabel}
+              placeholder={t('roadmap.selectCountry')}
+              noResultsText={t('common.noMatches')}
+            />
+            <SearchableSelect
+              label={t('roadmap.residence')}
+              id="roadmap-residence"
+              value={form.residence}
+              onChange={(v) => setForm((f) => ({ ...f, residence: v }))}
+              options={countryOptions}
+              getOptionValue={(c) => c}
+              getOptionLabel={countryItemLabel}
+              placeholder={t('roadmap.selectCountry')}
+              noResultsText={t('common.noMatches')}
+            />
+            <SearchableMultiSelect
+              label={t('roadmap.lived')}
+              id="roadmap-lived"
+              value={form.lived}
+              onChange={(codes) => setForm((f) => ({ ...f, lived: codes }))}
+              options={countryOptions}
+              getOptionValue={(c) => c}
+              getOptionLabel={countryItemLabel}
+              placeholder={t('roadmap.searchCountries')}
+              noResultsText={t('common.noMatches')}
+              hint={t('roadmap.livedHint')}
+            />
+            <SearchableMultiSelect
+              label={t('roadmap.studied')}
+              id="roadmap-studied"
+              value={form.studied}
+              onChange={(codes) => setForm((f) => ({ ...f, studied: codes }))}
+              options={countryOptions}
+              getOptionValue={(c) => c}
+              getOptionLabel={countryItemLabel}
+              placeholder={t('roadmap.searchCountries')}
+              noResultsText={t('common.noMatches')}
+            />
+            <SearchableMultiSelect
+              label={t('roadmap.worked')}
+              id="roadmap-worked"
+              value={form.worked}
+              onChange={(codes) => setForm((f) => ({ ...f, worked: codes }))}
+              options={countryOptions}
+              getOptionValue={(c) => c}
+              getOptionLabel={countryItemLabel}
+              placeholder={t('roadmap.searchCountries')}
+              noResultsText={t('common.noMatches')}
+            />
             <Field label={t('roadmap.marital')}>
               <textarea
                 className={`${input} min-h-[72px]`}
@@ -125,30 +149,46 @@ export function DocumentRoadmap() {
                 placeholder={t('roadmap.maritalHelp')}
               />
             </Field>
-            <Field label={t('roadmap.military')}>
-              <input
-                className={input}
-                value={form.military}
-                onChange={(e) => setForm((f) => ({ ...f, military: e.target.value }))}
-                placeholder={t('roadmap.militaryHelp')}
-              />
-            </Field>
-            <Field label={t('roadmap.embassy')}>
-              <EmbassyCombobox
-                valueId={form.embassyPostId}
-                onChange={(id) => setForm((f) => ({ ...f, embassyPostId: id }))}
-                placeholder={t('roadmap.embassySearch')}
-              />
-            </Field>
+            <SearchableSelect
+              label={t('roadmap.military')}
+              id="roadmap-military"
+              value={form.military}
+              onChange={(v) => setForm((f) => ({ ...f, military: v }))}
+              options={militaryOptions}
+              getOptionValue={(o) => o.value}
+              getOptionLabel={(o) => o.label}
+              placeholder={t('roadmap.militaryHelp')}
+              noResultsText={t('common.noMatches')}
+            />
+            <SearchableSelect
+              label={t('roadmap.embassy')}
+              id="roadmap-embassy"
+              value={form.embassyPostId}
+              onChange={(id) => setForm((f) => ({ ...f, embassyPostId: id }))}
+              options={US_OVERSEAS_POSTS}
+              getOptionValue={(p) => p.id}
+              getOptionLabel={(p) => `${p.label} — ${p.city}`}
+              placeholder={t('roadmap.embassySearch')}
+              noResultsText={t('common.noMatches')}
+              footer={
+                embassy ? (
+                  <p className={`text-xs ${muted} mt-2 whitespace-pre-line`}>
+                    {embassy.address}
+                    {'\n'}
+                    {embassy.phone} · {embassy.website}
+                  </p>
+                ) : null
+              }
+            />
             <Field label={t('roadmap.education')}>
               <select
                 className={select}
                 value={form.educationIndex}
                 onChange={(e) => setForm((f) => ({ ...f, educationIndex: Number(e.target.value) }))}
               >
-                {eduList.map((label, i) => (
-                  <option key={label} value={i}>
-                    {label}
+                {eduList.map((lbl, i) => (
+                  <option key={lbl} value={i}>
+                    {lbl}
                   </option>
                 ))}
               </select>
@@ -217,27 +257,11 @@ export function DocumentRoadmap() {
                   <li key={`pkt-${i}`}>{line}</li>
                 ))}
               </ul>
-              <p className="mt-3 text-xs text-amber-700 dark:text-amber-200/85">
-                {t('disclaimer.short')}
-              </p>
+              <p className="mt-3 text-xs text-amber-700 dark:text-amber-200/85">{t('disclaimer.short')}</p>
             </article>
           </div>
         </div>
       </div>
-
-      {livedOpen ? (
-        <MultiCountryPicker
-          lang={lang}
-          selectedCodes={form.lived}
-          onChange={(codes) => setForm((f) => ({ ...f, lived: codes }))}
-          title={t('roadmap.livedModalTitle')}
-          hint={t('roadmap.livedHint')}
-          doneLabel={t('roadmap.done')}
-          clearLabel={t('roadmap.clearLived')}
-          searchPlaceholder={t('roadmap.searchCountries')}
-          onClose={() => setLivedOpen(false)}
-        />
-      ) : null}
     </section>
   )
 }

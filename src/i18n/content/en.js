@@ -299,5 +299,71 @@ information, simplify complex steps, and help people move forward with confidenc
       'Court / military records if applicable',
       'Certified translations if applicable',
     ],
+    militaryNone: 'None / not applicable',
+  },
+  homeUpdates: {
+    title: 'Official Immigration & DV Updates',
+    badgeOfficialOnly: 'Official sources only',
+    badgeLiveSoon: 'Live monitoring coming soon',
+    staticNote:
+      'Static official-source links for v0.2. Live monitoring and AI summaries will be added later.',
+    readOfficial: 'Read official source',
+    audienceLabel: 'Audience',
+    dateLabel: 'Date',
+    datePlaceholder: 'See official posting',
+    items: [
+      {
+        category: 'DV Program',
+        title: 'Diversity Visa Program Instructions',
+        summary:
+          'Official instructions explain eligibility, entry rules, photo standards, and how applicants should submit entries through the authorized system.',
+        source: 'U.S. Department of State',
+        link: 'https://travel.state.gov/content/travel/en/us-visas/immigrate/diversity-visa-program-entry.html',
+        audience: 'Applicants',
+      },
+      {
+        category: 'Entrant Status Check',
+        title: 'Check DV selection only through the official portal',
+        summary:
+          'Applicants should verify selection status only through the official Entrant Status Check website and keep their confirmation number secure.',
+        source: 'U.S. Department of State',
+        link: 'https://dvprogram.state.gov/',
+        audience: 'Applicants / Selected winners',
+      },
+      {
+        category: 'DS-260',
+        title: 'Online immigrant visa application',
+        summary: 'Selected applicants complete the DS-260 through CEAC as part of immigrant visa processing.',
+        source: 'Consular Electronic Application Center',
+        link: 'https://ceac.state.gov/IV/Login.aspx',
+        audience: 'Selected winners',
+      },
+      {
+        category: 'Visa Bulletin',
+        title: 'Track case number movement',
+        summary:
+          'The Visa Bulletin helps DV applicants understand regional rank number movement and interview eligibility timing.',
+        source: 'U.S. Department of State',
+        link: 'https://travel.state.gov/content/travel/en/us-visas/visa-information-resources/visa-bulletin.html',
+        audience: 'Selected winners',
+      },
+      {
+        category: 'Civil Documents',
+        title: 'Country-specific document rules',
+        summary:
+          'The Reciprocity and Civil Documents page gives country-specific guidance for birth, police, marriage, military, court, and other civil documents.',
+        source: 'U.S. Department of State',
+        link: 'https://travel.state.gov/content/travel/en/us-visas/Visa-Reciprocity-and-Civil-Documents-by-Country.html',
+        audience: 'Document preparation',
+      },
+      {
+        category: 'New Immigrants',
+        title: 'Settling in the United States',
+        summary: 'USCIS provides official guidance for new immigrants about rights, responsibilities, and settling in the U.S.',
+        source: 'USCIS',
+        link: 'https://www.uscis.gov/tools/settling-in-the-us',
+        audience: 'Visa approved / New arrivals',
+      },
+    ],
   },
 }
