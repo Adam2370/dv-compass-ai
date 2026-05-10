@@ -197,6 +197,7 @@ export const translations = {
       embassySearch: 'Search U.S. embassy or city…',
       maritalHelp: 'Optional: list countries or details for marriages/divorces.',
       militaryHelp: 'Country of military service, or “None”.',
+      militaryNone: 'None',
       educationLevels: [
         'No formal schooling',
         'Primary',
@@ -208,6 +209,8 @@ export const translations = {
         "Master's or professional degree",
         'Doctorate',
       ],
+      finalRequirementsDisclaimer:
+        'Final requirements depend on official reciprocity guidance, embassy instructions, age, residence duration, and case facts.',
     },
     countryGuides: {
       title: 'Country guides',
@@ -216,11 +219,43 @@ export const translations = {
       search: 'Search country…',
       detailTitle: 'Document guidance',
       reciprocity: 'U.S. reciprocity & civil documents (official)',
-      openReciprocity: 'Open reciprocity page',
+      openReciprocity: 'Open reciprocity page for this country',
+      docLabels: {
+        passport: 'Passport',
+        birthCertificate: 'Birth certificate',
+        policeCertificate: 'Police certificate',
+        marriageCertificate: 'Marriage certificate',
+        divorceCertificate: 'Divorce / dissolution',
+        militaryRecords: 'Military records',
+        courtPrisonRecords: 'Court / prison records',
+        educationDocuments: 'Education documents',
+        translations: 'Translations',
+        embassyNotes: 'Embassy notes',
+      },
+      genericDocBody:
+        'Official-source verification needed. Check the State Department Reciprocity page for this country.',
+      badgeSeed: 'Editorial seed — confirm every requirement on official pages',
+      badgeGeneric: 'Generic — verify reciprocity and post instructions',
+      reciprocityLinkVerified: 'Country reciprocity page (spot-checked link)',
+      reciprocityLinkUnverified: 'Reciprocity index — select your country on the official list',
+      genericCountryWarn:
+        'This country uses a generic template. Civil-document rules are defined on the official Reciprocity page and your consulate’s instructions.',
     },
     embassy: {
       title: 'Embassy & medical',
       subtitle: 'Prepare for interviews and panel-physician medical exams with realistic checklists.',
+      pickPost: 'Select embassy / consulate',
+      officialWebsite: 'Official website',
+      interviewInstructions: 'Interview instructions',
+      medicalInstructions: 'Medical / panel physician',
+      panelPhysicianWarn:
+        'Immigrant visa medical exams must be completed only with an embassy-authorized panel physician. Other clinics are not valid for this process.',
+      verifyPostProcessing:
+        'Verify current immigrant visa processing status through the official State Department list of posts.',
+      badgeVerified: 'Seed listing — re-check travel.state.gov',
+      badgeUnverified: 'Details incomplete — verify on the official posts list',
+      instructionsOnWebsite: 'Use the post’s official website for interview scheduling and medical guidance.',
+      officialPostsList: 'Official list of immigrant visa posts (travel.state.gov)',
       tipBinder: 'Organize originals and copies in a tabbed binder as instructed.',
       tipSecurity: 'Security rules and prohibited items vary by post—read official notices.',
       tipArrival: 'Arrive earlier than your appointment window recommends.',
@@ -286,6 +321,15 @@ export const translations = {
     medicalGuide: 'Medical exam guide',
     officialDvWarn:
       'The official DV Lottery entry is free and should only be completed through official U.S. government websites.',
+    visaBulletin: {
+      cardTitle: 'Visa Bulletin tracker',
+      cardSubtitle: 'DV rank numbers and visa availability change every month on the official bulletin.',
+      explanation:
+        'The Visa Bulletin publishes immigrant visa availability by category and chargeability. DV applicants should read how “current” and cut-off numbers apply to their case number — always rely on the bulletin for the month of your interview.',
+      liveParsingLater: 'Live parsing from the official bulletin is planned for a later release.',
+      openOfficial: 'Open official Visa Bulletin',
+      regionsIntro: 'The bulletin groups cases by regions and chargeability areas such as:',
+    },
   },
   fr: {
     disclaimer: { short: disclaimerShortFr, banner: 'Mention légale' },
@@ -390,6 +434,7 @@ export const translations = {
       embassySearch: 'Rechercher une ambassade américaine ou une ville…',
       maritalHelp: 'Optionnel : pays ou détails des mariages/divorces.',
       militaryHelp: 'Pays de service militaire, ou « Aucun ».',
+      militaryNone: 'Aucun',
       educationLevels: [
         'Pas de scolarité formelle',
         'Primaire',
@@ -401,6 +446,8 @@ export const translations = {
         'Master ou diplôme professionnel',
         'Doctorat',
       ],
+      finalRequirementsDisclaimer:
+        'Les exigences finales dépendent de la réciprocité officielle, des instructions du poste, de l’âge, de la durée de résidence et des faits du dossier.',
     },
     countryGuides: {
       title: 'Guides par pays',
@@ -409,11 +456,43 @@ export const translations = {
       search: 'Rechercher un pays…',
       detailTitle: 'Guide des documents',
       reciprocity: 'Réciprocité et documents civils (officiel)',
-      openReciprocity: 'Ouvrir la page de réciprocité',
+      openReciprocity: 'Ouvrir la page de réciprocité pour ce pays',
+      docLabels: {
+        passport: 'Passeport',
+        birthCertificate: 'Acte de naissance',
+        policeCertificate: 'Casier judiciaire',
+        marriageCertificate: 'Acte de mariage',
+        divorceCertificate: 'Divorce / dissolution',
+        militaryRecords: 'Documents militaires',
+        courtPrisonRecords: 'Justice / détention',
+        educationDocuments: 'Diplômes et relevés',
+        translations: 'Traductions',
+        embassyNotes: 'Notes d’ambassade',
+      },
+      genericDocBody:
+        'Vérification des sources officielles requise. Consultez la page Réciprocité du Département d’État pour ce pays.',
+      badgeSeed: 'Contenu éditorial — confirmez sur les pages officielles',
+      badgeGeneric: 'Générique — vérifiez réciprocité et instructions du poste',
+      reciprocityLinkVerified: 'Page pays (lien contrôlé ponctuellement)',
+      reciprocityLinkUnverified: 'Index réciprocité — sélectionnez votre pays sur la liste officielle',
+      genericCountryWarn:
+        'Pays en modèle générique. Les règles sur documents civils figurent sur la page Réciprocité officielle et les instructions du consulat.',
     },
     embassy: {
       title: 'Ambassade et médical',
       subtitle: 'Listes de préparation pour entretiens et examens médicaux agréés.',
+      pickPost: 'Choisir ambassade / consulat',
+      officialWebsite: 'Site officiel',
+      interviewInstructions: 'Instructions d’entretien',
+      medicalInstructions: 'Médecin panéliste / médical',
+      panelPhysicianWarn:
+        'L’examen médical pour visa d’immigrant doit être fait uniquement chez un médecin panéliste agréé par l’ambassade. Les autres cliniques ne sont pas valides.',
+      verifyPostProcessing:
+        'Vérifiez le traitement actuel des visas d’immigrant via la liste officielle des postes du Département d’État.',
+      badgeVerified: 'Fiche initiale — revérifiez travel.state.gov',
+      badgeUnverified: 'Détails incomplets — vérifiez sur la liste officielle des postes',
+      instructionsOnWebsite: 'Utilisez le site officiel du poste pour entretien et instructions médicales.',
+      officialPostsList: 'Liste officielle des postes de visas d’immigrant (travel.state.gov)',
       tipBinder: 'Classez originaux et copies dans un classeur à onglets comme demandé.',
       tipSecurity: 'Sécurité et objets interdits variables — lisez les avis officiels.',
       tipArrival: 'Arrivez plus tôt que la plage horaire recommandée.',
@@ -475,6 +554,15 @@ export const translations = {
     medicalGuide: 'Guide de l’examen médical',
     officialDvWarn:
       'La participation officielle à la loterie DV est gratuite et doit être effectuée uniquement sur les sites gouvernementaux américains officiels.',
+    visaBulletin: {
+      cardTitle: 'Suivi du Visa Bulletin',
+      cardSubtitle: 'Les numéros de rang DV et la disponibilité des visas changent chaque mois sur le bulletin officiel.',
+      explanation:
+        'Le Visa Bulletin publie la disponibilité des visas par catégorie et chargeabilité. Les candidats DV doivent voir comment les numéros « current » et de coupure s’appliquent à leur dossier — fiez-vous toujours au bulletin du mois de l’entretien.',
+      liveParsingLater: 'L’analyse automatique du bulletin officiel est prévue dans une version ultérieure.',
+      openOfficial: 'Ouvrir le Visa Bulletin officiel',
+      regionsIntro: 'Le bulletin regroupe les dossiers par régions et zones de chargeabilité, par exemple :',
+    },
   },
   ar: {
     disclaimer: { short: disclaimerShortAr, banner: 'إشعار قانوني' },
@@ -579,6 +667,7 @@ export const translations = {
       embassySearch: 'ابحث عن سفارة أو مدينة…',
       maritalHelp: 'اختياري: تفاصيل الزواج/الطلاق والبلدان.',
       militaryHelp: 'بلد الخدمة العسكرية أو «لا يوجد».',
+      militaryNone: 'لا يوجد',
       educationLevels: [
         'بدون تعليم رسمي',
         'ابتدائي',
@@ -590,6 +679,8 @@ export const translations = {
         'ماجستير أو مهني',
         'دكتوراه',
       ],
+      finalRequirementsDisclaimer:
+        'تعتمد المتطلبات النهائية على إرشادات التعامل المتبادل الرسمية وتعليمات السفارة والعمر ومدة الإقامة ووقائع الحالة.',
     },
     countryGuides: {
       title: 'أدلة الدول',
@@ -598,11 +689,43 @@ export const translations = {
       search: 'ابحث عن بلد…',
       detailTitle: 'إرشادات الوثائق',
       reciprocity: 'التعامل المتبادل والوثائق المدنية (رسمي)',
-      openReciprocity: 'فتح صفحة التعامل المتبادل',
+      openReciprocity: 'فتح صفحة التعامل المتبادل لهذا البلد',
+      docLabels: {
+        passport: 'جواز السفر',
+        birthCertificate: 'شهادة الميلاد',
+        policeCertificate: 'شهادة الشرطة',
+        marriageCertificate: 'عقد الزواج',
+        divorceCertificate: 'الطلاق / إنهاء الزواج',
+        militaryRecords: 'السجلات العسكرية',
+        courtPrisonRecords: 'سجلات المحكمة / السجن',
+        educationDocuments: 'وثائق التعليم',
+        translations: 'الترجمات',
+        embassyNotes: 'ملاحظات السفارة',
+      },
+      genericDocBody:
+        'يلزم التحقق من المصادر الرسمية. راجع صفحة التعامل المتبادل في وزارة الخارجية الأمريكية لهذا البلد.',
+      badgeSeed: 'محتوى تحريري — أكد كل متطلب على الصفحات الرسمية',
+      badgeGeneric: 'عام — تحقق من التعامل المتبادل وتعليمات البعثة',
+      reciprocityLinkVerified: 'صفحة البلد (رابط تمت مراجعته نقطياً)',
+      reciprocityLinkUnverified: 'فهرس التعامل المتبادل — اختر بلدك من القائمة الرسمية',
+      genericCountryWarn:
+        'هذا البلد يستخدم قالباً عاماً. قواعد الوثائق المدنية مذكورة في صفحة التعامل المتبادل الرسمية وتعليمات القنصلية.',
     },
     embassy: {
       title: 'السفارة والطبي',
       subtitle: 'قوائم تحضير للمقابلات والفحوصات لدى أطباء معتمدين.',
+      pickPost: 'اختر السفارة / القنصلية',
+      officialWebsite: 'الموقع الرسمي',
+      interviewInstructions: 'تعليمات المقابلة',
+      medicalInstructions: 'الفحص الطبي / طبيب اللوحة',
+      panelPhysicianWarn:
+        'يجب إجراء الفحص الطبي لتأشيرة الهجرة فقط لدى طبيب لوحة معتمد من السفارة. العيادات الأخرى غير مقبولة.',
+      verifyPostProcessing:
+        'تحقق من حالة معالجة تأشيرات الهجرة الحالية عبر القائمة الرسمية لوزارة الخارجية للبعثات.',
+      badgeVerified: 'بيانات أولية — أعد التحقق من travel.state.gov',
+      badgeUnverified: 'تفاصيل ناقصة — تحقق من القائمة الرسمية للبعثات',
+      instructionsOnWebsite: 'استخدم الموقع الرسمي للبعثة لتعليمات المقابلة والفحص.',
+      officialPostsList: 'القائمة الرسمية لبعثات تأشيرات الهجرة (travel.state.gov)',
       tipBinder: 'رتّب الأصول والنسخ في ملف بألسنة كما طُلب.',
       tipSecurity: 'تختلف قواعد الأمن والممنوعات — اقرأ إشعارات السفارة.',
       tipArrival: 'حضر قبل نافذة الموعد الموصى بها.',
@@ -667,6 +790,15 @@ export const translations = {
     statesTitle: 'أدلة الولايات',
     medicalGuide: 'دليل الفحص الطبي',
     officialDvWarn: 'المشاركة الرسمية في قرعة التنوع مجانية ويجب إكمالها فقط عبر المواقع الحكومية الأمريكية الرسمية.',
+    visaBulletin: {
+      cardTitle: 'متتبع نشرة التأشيرات',
+      cardSubtitle: 'أرقام الترتيب في قرعة التنوع وتوفر التأشيرات تتغير شهرياً في النشرة الرسمية.',
+      explanation:
+        'تنشر النشرة توفر تأشيرات الهجرة حسب الفئة والبلد المسؤول. يجب على متقدمي قرعة التنوع فهم كيفية انطباق «current» وأرقام القطع على حالتهم — اعتمد دائماً على نشرة شهر المقابلة.',
+      liveParsingLater: 'تحليل مباشر من النشرة الرسمية مخطط لإصدار لاحق.',
+      openOfficial: 'فتح النشرة الرسمية',
+      regionsIntro: 'تجمّع النشرة الحالات حسب المناطق والمسؤولية، مثل:',
+    },
   },
   es: {
     disclaimer: { short: disclaimerShortEs, banner: 'Aviso legal' },
@@ -771,6 +903,7 @@ export const translations = {
       embassySearch: 'Buscar embajada o ciudad de EE. UU.…',
       maritalHelp: 'Opcional: países o detalles de matrimonios/divorcios.',
       militaryHelp: 'País de servicio militar, o «Ninguno».',
+      militaryNone: 'Ninguno',
       educationLevels: [
         'Sin escolaridad formal',
         'Primaria',
@@ -782,6 +915,8 @@ export const translations = {
         'Maestría o título profesional',
         'Doctorado',
       ],
+      finalRequirementsDisclaimer:
+        'Los requisitos finales dependen de la reciprocidad oficial, las instrucciones del poste, la edad, la duración de la residencia y los hechos del caso.',
     },
     countryGuides: {
       title: 'Guías por país',
@@ -790,11 +925,43 @@ export const translations = {
       search: 'Buscar país…',
       detailTitle: 'Guía de documentos',
       reciprocity: 'Reciprocidad y documentos civiles (oficial)',
-      openReciprocity: 'Abrir página de reciprocidad',
+      openReciprocity: 'Abrir página de reciprocidad para este país',
+      docLabels: {
+        passport: 'Pasaporte',
+        birthCertificate: 'Acta de nacimiento',
+        policeCertificate: 'Certificado de antecedentes',
+        marriageCertificate: 'Acta de matrimonio',
+        divorceCertificate: 'Divorcio / disolución',
+        militaryRecords: 'Registros militares',
+        courtPrisonRecords: 'Registros judiciales / penitenciarios',
+        educationDocuments: 'Documentos educativos',
+        translations: 'Traducciones',
+        embassyNotes: 'Notas de la embajada',
+      },
+      genericDocBody:
+        'Se necesita verificación con fuentes oficiales. Consulte la página de Reciprocidad del Departamento de Estado para este país.',
+      badgeSeed: 'Contenido editorial — confirme cada requisito en páginas oficiales',
+      badgeGeneric: 'Genérico — verifique reciprocidad e instrucciones del poste',
+      reciprocityLinkVerified: 'Página del país (enlace revisado puntualmente)',
+      reciprocityLinkUnverified: 'Índice de reciprocidad — elija su país en la lista oficial',
+      genericCountryWarn:
+        'Este país usa una plantilla genérica. Las reglas de documentos civiles están en la página oficial de Reciprocidad y en las instrucciones del consulado.',
     },
     embassy: {
       title: 'Embajada y médico',
       subtitle: 'Listas para entrevistas y exámenes con médicos panelistas.',
+      pickPost: 'Seleccionar embajada / consulado',
+      officialWebsite: 'Sitio web oficial',
+      interviewInstructions: 'Instrucciones de entrevista',
+      medicalInstructions: 'Médico de panel / examen médico',
+      panelPhysicianWarn:
+        'Los exámenes médicos para visa de inmigrante deben hacerse solo con un médico de panel autorizado por la embajada. Otras clínicas no son válidas.',
+      verifyPostProcessing:
+        'Verifique el procesamiento actual de visas de inmigrante en la lista oficial de postes del Departamento de Estado.',
+      badgeVerified: 'Ficha inicial — vuelva a comprobar travel.state.gov',
+      badgeUnverified: 'Datos incompletos — verifique en la lista oficial de postes',
+      instructionsOnWebsite: 'Use el sitio oficial del poste para entrevista e instrucciones médicas.',
+      officialPostsList: 'Lista oficial de postes de visas de inmigrante (travel.state.gov)',
       tipBinder: 'Organice originales y copias en carpeta con pestañas según instrucciones.',
       tipSecurity: 'Seguridad y objetos prohibidos varían — lea avisos oficiales.',
       tipArrival: 'Llegue antes de la ventana horaria recomendada.',
@@ -860,5 +1027,14 @@ export const translations = {
     medicalGuide: 'Guía del examen médico',
     officialDvWarn:
       'La inscripción oficial a la lotería DV es gratuita y solo debe completarse en los sitios web gubernamentales oficiales de EE. UU.',
+    visaBulletin: {
+      cardTitle: 'Seguimiento del Visa Bulletin',
+      cardSubtitle: 'Los números de rango DV y la disponibilidad de visas cambian cada mes en el boletín oficial.',
+      explanation:
+        'El Visa Bulletin publica la disponibilidad de visas de inmigrante por categoría y país de imputación. Los solicitantes DV deben leer cómo los números «current» y de corte aplican a su caso — confíe siempre en el boletín del mes de su cita.',
+      liveParsingLater: 'El análisis en vivo del boletín oficial está planificado para una versión posterior.',
+      openOfficial: 'Abrir Visa Bulletin oficial',
+      regionsIntro: 'El boletín agrupa casos por regiones y áreas de imputación, por ejemplo:',
+    },
   },
 }

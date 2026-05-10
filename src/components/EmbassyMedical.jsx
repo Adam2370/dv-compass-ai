@@ -1,47 +1,152 @@
-import { US_OVERSEAS_POSTS } from '../data/usEmbassies'
+import { useMemo, useState } from 'react'
+import { IMMIGRANT_VISA_POSTS } from '../data/immigrantVisaPosts'
+import { OFFICIAL_SOURCES } from '../data/officialSources'
 import { useLanguage } from '../hooks/useLanguage'
 import { card, heading, muted } from '../theme/ui'
+import { SearchableSelect } from './SearchableSelect'
 import { SectionHeading } from './SectionHeading'
-
-const FEATURED_IDS = ['cm-yde', 'ae-abd', 'in-del', 'gh-acc', 'ke-nbo']
 
 export function EmbassyMedical() {
   const { t } = useLanguage()
-  const featured = FEATURED_IDS.map((id) => US_OVERSEAS_POSTS.find((p) => p.id === id)).filter(Boolean)
+  const [postId, setPostId] = useState(IMMIGRANT_VISA_POSTS[0]?.id ?? '')
+
+  const post = useMemo(() => IMMIGRANT_VISA_POSTS.find((p) => p.id === postId) ?? null, [postId])
+
+  const interviewUrl = post?.interviewInstructionsUrl || post?.officialWebsite
+  const medicalUrl = post?.medicalInstructionsUrl || post?.officialWebsite
+  const mapQuery = post?.address?.trim() ? post.address : `${post?.name ?? ''} ${post?.city ?? ''}`
 
   return (
     <section id="embassy" className="py-20 md:py-28 border-t border-slate-200/80 dark:border-white/5 bg-slate-100/40 dark:bg-slate-950/40">
       <div className="mx-auto max-w-6xl px-4">
         <SectionHeading title={t('embassy.title')} subtitle={t('embassy.subtitle')} />
 
-        <div className="grid gap-6 md:grid-cols-2">
-          {featured.map((p) => (
-            <article key={p.id} className={`${card} p-6 hover:border-indigo-400/35 transition-colors`}>
-              <h3 className={`text-lg font-semibold mb-3 ${heading}`}>{p.label}</h3>
-              <p className={`text-sm ${muted} whitespace-pre-line mb-3`}>{p.address}</p>
-              <p className={`text-sm ${muted} mb-3`}>{p.phone}</p>
-              <div className="flex flex-wrap gap-3">
-                <a href={p.website} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-violet-600 dark:text-violet-300 hover:underline">
-                  {p.website.replace('https://', '')}
-                </a>
+        <div className={`${card} p-6 md:p-8 mb-10 max-w-2xl`}>
+          <SearchableSelect
+            label={t('embassy.pickPost')}
+            id="embassy-post-select"
+            value={postId}
+            onChange={setPostId}
+            options={IMMIGRANT_VISA_POSTS}
+            getOptionValue={(p) => p.id}
+            getOptionLabel={(p) => `${p.name} — ${p.city}, ${p.countryCode}`}
+            placeholder={t('roadmap.embassySearch')}
+            noResultsText={t('common.noMatches')}
+          />
+        </div>
+
+        {post ? (
+          <div className="grid gap-8 lg:grid-cols-2">
+            <article className={`${card} p-6 md:p-8`}>
+              <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+                <div>
+                  <h3 className={`text-lg font-semibold ${heading}`}>{post.name}</h3>
+                  <p className={`text-sm ${muted}`}>
+                    {post.city}, {post.country} · {post.type} · {post.region}
+                  </p>
+                </div>
+                <span
+                  className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                    post.verificationStatus === 'unverified'
+                      ? 'bg-amber-100 text-amber-950 dark:bg-amber-500/20 dark:text-amber-100'
+                      : 'bg-emerald-100 text-emerald-950 dark:bg-emerald-500/20 dark:text-emerald-100'
+                  }`}
+                >
+                  {post.verificationStatus === 'unverified' ? t('embassy.badgeUnverified') : t('embassy.badgeVerified')}
+                </span>
+              </div>
+
+              {post.verificationStatus === 'unverified' ? (
+                <p className="mb-4 rounded-lg border border-amber-200/70 bg-amber-50/80 px-3 py-2 text-sm text-amber-950 dark:border-amber-400/30 dark:bg-amber-500/10 dark:text-amber-50/95">
+                  {t('embassy.verifyPostProcessing')}
+                </p>
+              ) : null}
+
+              {post.address ? (
+                <p className={`text-sm ${muted} whitespace-pre-line mb-3`}>{post.address}</p>
+              ) : (
+                <p className={`text-sm ${muted} mb-3`}>{t('embassy.verifyPostProcessing')}</p>
+              )}
+              {post.phone ? <p className={`text-sm ${muted} mb-4`}>{post.phone}</p> : null}
+
+              <div className="flex flex-wrap gap-2">
                 <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.address)}`}
+                  href={post.officialWebsite}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm font-medium text-cyan-600 dark:text-cyan-300 hover:underline"
+                  className="inline-flex rounded-lg bg-violet-600 px-3 py-2 text-xs font-semibold text-white hover:bg-violet-500"
                 >
-                  {t('common.mapsPlaceholder')}
+                  {t('embassy.officialWebsite')}
+                </a>
+                <a
+                  href={interviewUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex rounded-lg border border-violet-300/60 bg-violet-50 px-3 py-2 text-xs font-semibold text-violet-800 hover:bg-violet-100 dark:border-violet-400/30 dark:bg-violet-500/10 dark:text-violet-100"
+                >
+                  {t('embassy.interviewInstructions')}
+                </a>
+                <a
+                  href={medicalUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex rounded-lg border border-cyan-300/60 bg-cyan-50 px-3 py-2 text-xs font-semibold text-cyan-900 hover:bg-cyan-100 dark:border-cyan-400/30 dark:bg-cyan-500/10 dark:text-cyan-100"
+                >
+                  {t('embassy.medicalInstructions')}
+                </a>
+                <a
+                  href={post.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex rounded-lg border border-slate-300/60 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-white/15 dark:text-slate-200 dark:hover:bg-white/5"
+                >
+                  {t('embassy.officialPostsList')}
                 </a>
               </div>
-              <ul className={`mt-4 text-sm ${muted} space-y-1 list-disc ps-5`}>
+              {!(post.interviewInstructionsUrl && post.medicalInstructionsUrl) ? (
+                <p className={`mt-3 text-xs ${muted}`}>{t('embassy.instructionsOnWebsite')}</p>
+              ) : null}
+
+              <p className="mt-5 rounded-lg border border-rose-200/70 bg-rose-50/80 px-3 py-2 text-sm text-rose-950 dark:border-rose-400/25 dark:bg-rose-500/10 dark:text-rose-50/95">
+                {t('embassy.panelPhysicianWarn')}
+              </p>
+
+              <ul className={`mt-5 text-sm ${muted} space-y-1 list-disc ps-5`}>
                 <li>{t('embassy.tipBinder')}</li>
                 <li>{t('embassy.tipSecurity')}</li>
                 <li>{t('embassy.tipArrival')}</li>
                 <li>{t('embassy.tipMedical')}</li>
               </ul>
             </article>
-          ))}
-        </div>
+
+            <div className="space-y-4">
+              <div
+                className={`${card} flex min-h-[220px] flex-col items-center justify-center border-dashed border-2 border-slate-300/60 p-8 text-center dark:border-white/15`}
+              >
+                <p className={`text-sm font-medium ${muted}`}>{t('common.mapsPlaceholder')}</p>
+                <p className={`mt-1 text-xs ${muted}`}>{mapQuery}</p>
+                {mapQuery ? (
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 text-sm font-semibold text-cyan-600 dark:text-cyan-300 hover:underline"
+                  >
+                    {t('common.mapsPlaceholder')}
+                  </a>
+                ) : null}
+              </div>
+              <a
+                href={OFFICIAL_SOURCES.listOfImmigrantVisaPosts}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${card} block p-4 text-sm font-semibold text-violet-600 dark:text-violet-300 hover:underline`}
+              >
+                {t('embassy.verifyPostProcessing')}
+              </a>
+            </div>
+          </div>
+        ) : null}
 
         <div className={`mt-16 ${card} border-emerald-300/40 dark:border-emerald-400/20 bg-emerald-50/80 dark:bg-emerald-500/5 p-8 md:p-10`}>
           <h3 className={`text-2xl font-semibold mb-4 ${heading}`}>{t('medicalGuide')}</h3>
