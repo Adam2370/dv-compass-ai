@@ -1,11 +1,15 @@
 import { useMemo, useState } from 'react'
+import { IMMIGRANT_VISA_POSTS } from '../data/immigrantVisaPosts'
+import { VERIFICATION_STATUS } from '../data/verificationRegistry'
+import { useLanguage } from '../hooks/useLanguage'
 import {
   getPostInstructionsUrl,
   getPostMedicalUrl,
-  IMMIGRANT_VISA_POSTS,
-} from '../data/immigrantVisaPosts'
-import { useLanguage } from '../hooks/useLanguage'
+  getPostPanelPhysicianUrl,
+  hasDirectPostPage,
+} from '../utils/postLinks'
 import { card, heading, muted } from '../theme/ui'
+import { DataVerificationPanel } from './DataVerificationPanel'
 import { SearchableSelect } from './SearchableSelect'
 import { SectionHeading } from './SectionHeading'
 
@@ -18,7 +22,9 @@ export function EmbassyMedical() {
   const interviewUrl = post ? getPostInstructionsUrl(post) : '#'
   const medicalUrl = post ? getPostMedicalUrl(post) : '#'
   const officialPostUrl = post ? getPostInstructionsUrl(post) : '#'
+  const panelUrl = post ? getPostPanelPhysicianUrl(post) : '#'
   const mapQuery = post?.address?.trim() ? post.address : `${post?.name ?? ''} ${post?.city ?? ''}`
+  const directPage = post ? hasDirectPostPage(post) : false
 
   return (
     <section id="embassy" className="py-20 md:py-28 border-t border-slate-200/80 dark:border-white/5 bg-slate-100/40 dark:bg-slate-950/40">
@@ -39,7 +45,7 @@ export function EmbassyMedical() {
             noResultsText={t('common.noMatches')}
           />
           {post?.id === 'de-frn' ? (
-            <p className={`mt-3 text-xs leading-relaxed ${muted}`}>{t('embassy.germanyFrankfurtIvHint')}</p>
+            <p className={`mt-3 text-xs leading-relaxed ${muted}`}>{t('embassy.germanyDatasetNote')}</p>
           ) : null}
         </div>
 
@@ -57,26 +63,32 @@ export function EmbassyMedical() {
                 <div className="flex flex-wrap justify-end gap-2">
                   <span
                     className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
-                      post.supplementUrl
+                      directPage
                         ? 'bg-emerald-100 text-emerald-950 dark:bg-emerald-500/20 dark:text-emerald-100'
                         : 'bg-slate-200 text-slate-900 dark:bg-white/10 dark:text-slate-200'
                     }`}
                   >
-                    {post.supplementUrl ? t('embassy.badgeDirectSupplement') : t('embassy.badgeGeneralPostsList')}
+                    {directPage ? t('embassy.badgeDirectSupplement') : t('embassy.badgeGeneralPostsList')}
                   </span>
-                  {post.verificationStatus === 'unverified' ? (
+                  {post.verificationStatus === VERIFICATION_STATUS.NEEDS_REVIEW ? (
                     <span className="shrink-0 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-950 dark:bg-amber-500/20 dark:text-amber-100">
-                      {t('embassy.badgeUnverified')}
+                      {t('embassy.verifNeedsReview')}
                     </span>
                   ) : null}
                 </div>
               </div>
 
-              <p className={`mb-4 rounded-lg border border-slate-200/80 bg-slate-50/90 px-3 py-2 text-xs leading-relaxed ${muted} dark:border-white/10 dark:bg-slate-900/40`}>
-                {t('embassy.instructionsPreferDirect')}
+              <p
+                className={`mb-4 rounded-lg border px-3 py-2 text-xs leading-relaxed ${
+                  directPage
+                    ? 'border-emerald-200/80 bg-emerald-50/80 text-emerald-950 dark:border-emerald-400/25 dark:bg-emerald-500/10 dark:text-emerald-50/95'
+                    : 'border-amber-200/80 bg-amber-50/80 text-amber-950 dark:border-amber-400/30 dark:bg-amber-500/10 dark:text-amber-50/95'
+                }`}
+              >
+                {directPage ? t('embassy.openingDirectInstructions') : t('embassy.openingGeneralListFallback')}
               </p>
 
-              {post.verificationStatus === 'unverified' ? (
+              {post.verificationStatus === VERIFICATION_STATUS.NEEDS_REVIEW ? (
                 <p className="mb-4 rounded-lg border border-amber-200/70 bg-amber-50/80 px-3 py-2 text-sm text-amber-950 dark:border-amber-400/30 dark:bg-amber-500/10 dark:text-amber-50/95">
                   {t('embassy.verifyPostProcessing')}
                 </p>
@@ -99,6 +111,14 @@ export function EmbassyMedical() {
                   {t('embassy.officialWebsite')}
                 </a>
                 <a
+                  href={officialPostUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex rounded-lg border border-slate-300/60 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-white/15 dark:text-slate-200 dark:hover:bg-white/5"
+                >
+                  {t('embassy.officialPostInstructions')}
+                </a>
+                <a
                   href={interviewUrl}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -115,15 +135,15 @@ export function EmbassyMedical() {
                   {t('embassy.medicalInstructions')}
                 </a>
                 <a
-                  href={officialPostUrl}
+                  href={panelUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex rounded-lg border border-slate-300/60 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-white/15 dark:text-slate-200 dark:hover:bg-white/5"
+                  className="inline-flex rounded-lg border border-teal-300/60 bg-teal-50 px-3 py-2 text-xs font-semibold text-teal-900 hover:bg-teal-100 dark:border-teal-400/30 dark:bg-teal-500/10 dark:text-teal-100"
                 >
-                  {t('embassy.officialPostInstructions')}
+                  {t('embassy.panelPhysicians')}
                 </a>
               </div>
-              {!post.supplementUrl ? (
+              {!directPage ? (
                 <p className={`mt-3 text-xs ${muted}`}>{t('embassy.instructionsOnWebsite')}</p>
               ) : null}
 
@@ -186,6 +206,8 @@ export function EmbassyMedical() {
             ))}
           </ul>
         </div>
+
+        <DataVerificationPanel />
       </div>
     </section>
   )

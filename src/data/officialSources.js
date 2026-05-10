@@ -16,6 +16,3 @@ export const OFFICIAL_SOURCES = {
 
 export const RECIPROCITY_COUNTRY_PAGE_BASE =
   'https://travel.state.gov/content/travel/en/us-visas/Visa-Reciprocity-and-Civil-Documents-by-Country'
-
-/** Alias for post supplement fallbacks (same URL as listOfImmigrantVisaPosts). */
-export const OFFICIAL_POSTS_LIST_URL = OFFICIAL_SOURCES.listOfImmigrantVisaPosts

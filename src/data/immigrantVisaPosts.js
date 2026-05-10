@@ -1,12 +1,14 @@
-import { OFFICIAL_POSTS_LIST_URL, OFFICIAL_SOURCES } from './officialSources.js'
+import { getPostInstructionsUrl, getPostMedicalUrl, OFFICIAL_POSTS_LIST_URL } from '../utils/postLinks.js'
 import { getMacroRegion } from './countryMacroRegions.js'
+import { VERIFICATION_STATUS } from './verificationRegistry.js'
 import { countryLabel } from '../utils/countries.js'
 
-const LIST_FALLBACK = OFFICIAL_SOURCES.listOfImmigrantVisaPosts
+const DEFAULT_NO_SUPPLEMENT_NOTE =
+  'Direct post supplement URL not yet verified. User must select post manually from official list.'
 
 /**
  * @typedef {'Embassy' | 'Consulate'} PostType
- * @typedef {'seed' | 'unverified'} PostVerification
+ * @typedef {typeof VERIFICATION_STATUS[keyof typeof VERIFICATION_STATUS]} PostVerificationStatus
  * @typedef {{
  *   id: string,
  *   name: string,
@@ -17,14 +19,18 @@ const LIST_FALLBACK = OFFICIAL_SOURCES.listOfImmigrantVisaPosts
  *   type: PostType,
  *   processesImmigrantVisas: boolean,
  *   postCode: string | null,
+ *   aliases: string[],
  *   supplementUrl: string | null,
  *   officialWebsite: string,
  *   interviewInstructionsUrl: string | null,
  *   medicalInstructionsUrl: string | null,
+ *   panelPhysicianUrl: string | null,
  *   address: string,
  *   phone: string,
  *   sourceUrl: string,
- *   verificationStatus: PostVerification,
+ *   verificationStatus: PostVerificationStatus,
+ *   lastVerified: string | null,
+ *   notes: string | null,
  *   searchText: string,
  * }} ImmigrantVisaPost
  */
@@ -39,24 +45,54 @@ const LIST_FALLBACK = OFFICIAL_SOURCES.listOfImmigrantVisaPosts
  *   phone: string,
  *   website: string,
  *   type?: PostType,
- *   verificationStatus?: PostVerification,
+ *   verificationStatus?: PostVerificationStatus,
  *   postCode?: string | null,
  *   supplementUrl?: string | null,
  *   interviewInstructionsUrl?: string | null,
  *   medicalInstructionsUrl?: string | null,
+ *   panelPhysicianUrl?: string | null,
+ *   aliases?: string[],
  *   searchExtras?: string[],
+ *   notes?: string | null,
+ *   lastVerified?: string | null,
  * }} raw
  */
 function buildPost(raw) {
   const type =
     raw.type ?? (raw.label.toLowerCase().includes('consulate') ? 'Consulate' : 'Embassy')
-  const verificationStatus = raw.verificationStatus ?? 'seed'
   const supplementUrl = raw.supplementUrl ?? null
-  const sourceUrl = supplementUrl ?? LIST_FALLBACK
-  const interviewInstructionsUrl = raw.interviewInstructionsUrl ?? supplementUrl ?? null
-  const medicalInstructionsUrl = raw.medicalInstructionsUrl ?? supplementUrl ?? null
   const countryName = countryLabel(raw.countryCode, 'en')
-  const searchText = [raw.label, raw.city, countryName, raw.countryCode, ...(raw.searchExtras ?? [])]
+  const aliases = [...(raw.aliases ?? []), ...(raw.searchExtras ?? [])].filter(Boolean)
+  const postCode = raw.postCode ?? null
+
+  let interviewInstructionsUrl
+  let medicalInstructionsUrl
+  let panelPhysicianUrl
+  let sourceUrl
+  /** @type {PostVerificationStatus} */
+  let verificationStatus
+  let notes
+
+  if (supplementUrl) {
+    interviewInstructionsUrl = supplementUrl
+    medicalInstructionsUrl = raw.medicalInstructionsUrl ?? supplementUrl
+    panelPhysicianUrl = raw.panelPhysicianUrl ?? supplementUrl
+    sourceUrl = supplementUrl
+    verificationStatus = VERIFICATION_STATUS.DIRECT_SUPPLEMENT_VERIFIED
+    notes = raw.notes ?? null
+  } else {
+    interviewInstructionsUrl = raw.interviewInstructionsUrl ?? null
+    medicalInstructionsUrl = raw.medicalInstructionsUrl ?? null
+    panelPhysicianUrl = raw.panelPhysicianUrl ?? null
+    sourceUrl = OFFICIAL_POSTS_LIST_URL
+    verificationStatus =
+      raw.verificationStatus === VERIFICATION_STATUS.NEEDS_REVIEW
+        ? VERIFICATION_STATUS.NEEDS_REVIEW
+        : VERIFICATION_STATUS.GENERAL_LIST_ONLY
+    notes = raw.notes ? `${DEFAULT_NO_SUPPLEMENT_NOTE} ${raw.notes}` : DEFAULT_NO_SUPPLEMENT_NOTE
+  }
+
+  const searchText = [raw.label, raw.city, countryName, raw.countryCode, postCode, ...aliases]
     .filter(Boolean)
     .join(' ')
     .toLowerCase()
@@ -70,29 +106,21 @@ function buildPost(raw) {
     region: getMacroRegion(raw.countryCode),
     type,
     processesImmigrantVisas: true,
-    postCode: raw.postCode ?? null,
+    postCode,
+    aliases,
     supplementUrl,
     officialWebsite: raw.website,
     interviewInstructionsUrl,
     medicalInstructionsUrl,
+    panelPhysicianUrl,
     address: raw.address,
     phone: raw.phone,
     sourceUrl,
     verificationStatus,
+    lastVerified: raw.lastVerified ?? null,
+    notes,
     searchText,
   }
-}
-
-/** @param {ImmigrantVisaPost | null | undefined} post */
-export function getPostInstructionsUrl(post) {
-  if (!post) return OFFICIAL_POSTS_LIST_URL
-  return post.supplementUrl || post.interviewInstructionsUrl || post.sourceUrl || OFFICIAL_POSTS_LIST_URL
-}
-
-/** @param {ImmigrantVisaPost | null | undefined} post */
-export function getPostMedicalUrl(post) {
-  if (!post) return OFFICIAL_POSTS_LIST_URL
-  return post.medicalInstructionsUrl || post.supplementUrl || post.sourceUrl || OFFICIAL_POSTS_LIST_URL
 }
 
 /** @type {ImmigrantVisaPost[]} */
@@ -108,6 +136,7 @@ export const IMMIGRANT_VISA_POSTS = [
     address: 'Avenue Rosa Parks, Mbankolo, P.O. Box 817, Yaoundé, Cameroon',
     phone: '(237) 222-514-000',
     website: 'https://cm.usembassy.gov',
+    aliases: ['Cameroon', 'Yaounde', 'Yaoundé', 'YDE'],
   }),
   buildPost({
     id: 'ae-abd',
@@ -120,6 +149,7 @@ export const IMMIGRANT_VISA_POSTS = [
     address: 'Embassies District, Plot 38, Sector W59-02, Street No. 4, Abu Dhabi, UAE (P.O. Box 4009)',
     phone: '+971-2-414-2200',
     website: 'https://ae.usembassy.gov',
+    aliases: ['UAE', 'United Arab Emirates', 'Abu Dhabi', 'Dubai', 'ABD'],
   }),
   buildPost({
     id: 'in-del',
@@ -130,6 +160,7 @@ export const IMMIGRANT_VISA_POSTS = [
       'Shantipath, Chanakyapuri, New Delhi 110021, India (consular: Gate 6 / “Visa Gate” on Andre Malraux Marg)',
     phone: '011-2419-8000 (from India); see usembassy.gov for dialing from abroad',
     website: 'https://in.usembassy.gov',
+    aliases: ['India', 'New Delhi', 'Delhi', 'IN'],
   }),
   buildPost({
     id: 'gh-acc',
@@ -139,6 +170,7 @@ export const IMMIGRANT_VISA_POSTS = [
     address: 'No. 24, Fourth Circular Rd., Cantonments, Accra, Ghana (P.O. Box 194)',
     phone: '+233-30-274-1000',
     website: 'https://gh.usembassy.gov',
+    aliases: ['Ghana', 'Accra', 'GH'],
   }),
   buildPost({
     id: 'ke-nbo',
@@ -148,6 +180,7 @@ export const IMMIGRANT_VISA_POSTS = [
     address: 'United Nations Avenue, Gigiri, Nairobi, Kenya',
     phone: '+254-20-363-6000',
     website: 'https://ke.usembassy.gov',
+    aliases: ['Kenya', 'Nairobi', 'KE'],
   }),
   buildPost({
     id: 'ma-rba',
@@ -157,6 +190,7 @@ export const IMMIGRANT_VISA_POSTS = [
     address: 'Km 5.7, Avenue Mohammed VI, Souissi, Rabat, Morocco',
     phone: '+212-537-637-200',
     website: 'https://ma.usembassy.gov',
+    aliases: ['Morocco', 'Rabat', 'MA'],
   }),
   buildPost({
     id: 'ma-cas',
@@ -166,7 +200,8 @@ export const IMMIGRANT_VISA_POSTS = [
     address: '',
     phone: '',
     website: 'https://ma.usembassy.gov',
-    verificationStatus: 'unverified',
+    verificationStatus: VERIFICATION_STATUS.NEEDS_REVIEW,
+    aliases: ['Morocco', 'Casablanca', 'MA'],
   }),
   buildPost({
     id: 'dz-alg',
@@ -176,6 +211,7 @@ export const IMMIGRANT_VISA_POSTS = [
     address: '5 Chemin Cheikh Bachir Ibrahimi, El Biar 16030, Algiers, Algeria',
     phone: '+213-770-08-2000',
     website: 'https://dz.usembassy.gov',
+    aliases: ['Algeria', 'Algiers', 'DZ'],
   }),
   buildPost({
     id: 'et-add',
@@ -185,6 +221,7 @@ export const IMMIGRANT_VISA_POSTS = [
     address: 'Entoto Street, P.O. Box 1014, Addis Ababa, Ethiopia',
     phone: '+251-11-130-6000',
     website: 'https://et.usembassy.gov',
+    aliases: ['Ethiopia', 'Addis Ababa', 'ET'],
   }),
   buildPost({
     id: 'np-ktm',
@@ -194,6 +231,7 @@ export const IMMIGRANT_VISA_POSTS = [
     address: 'Maharajgunj, Kathmandu, Nepal',
     phone: '+977-1-423-4500',
     website: 'https://np.usembassy.gov',
+    aliases: ['Nepal', 'Kathmandu', 'NP'],
   }),
   buildPost({
     id: 'ng-abj',
@@ -203,6 +241,7 @@ export const IMMIGRANT_VISA_POSTS = [
     address: 'Diplomatic Drive, Central District Area, Abuja, Nigeria',
     phone: '+234-9-461-4000',
     website: 'https://ng.usembassy.gov',
+    aliases: ['Nigeria', 'Abuja', 'NG'],
   }),
   buildPost({
     id: 'ng-los',
@@ -212,6 +251,7 @@ export const IMMIGRANT_VISA_POSTS = [
     address: '2 Walter Carrington Crescent, Victoria Island, Lagos, Nigeria',
     phone: '+234-1-460-3400',
     website: 'https://ng.usembassy.gov/embassy-consulates/lagos',
+    aliases: ['Nigeria', 'Lagos', 'NG'],
   }),
   buildPost({
     id: 'sn-dkr',
@@ -221,15 +261,20 @@ export const IMMIGRANT_VISA_POSTS = [
     address: 'Route des Almadies, Dakar, Senegal',
     phone: '+221-33-879-4000',
     website: 'https://sn.usembassy.gov',
+    aliases: ['Senegal', 'Dakar', 'SN'],
   }),
   buildPost({
     id: 'fr-par',
+    postCode: 'PRS',
+    supplementUrl:
+      'https://travel.state.gov/content/travel/en/us-visas/Supplements/Supplements_by_Post/PRS-Paris.html',
     label: 'U.S. Embassy Paris',
     countryCode: 'FR',
     city: 'Paris',
     address: '2 Avenue Gabriel, 75008 Paris, France',
     phone: '+33-1-43-12-22-22',
     website: 'https://fr.usembassy.gov',
+    aliases: ['France', 'Paris', 'PRS'],
   }),
   buildPost({
     id: 'gb-lon',
@@ -239,6 +284,7 @@ export const IMMIGRANT_VISA_POSTS = [
     address: '33 Nine Elms Lane, London SW11 7US, United Kingdom',
     phone: '+44-20-7499-9000',
     website: 'https://uk.usembassy.gov',
+    aliases: ['United Kingdom', 'UK', 'London', 'GB', 'Britain', 'Great Britain'],
   }),
   buildPost({
     id: 'tr-ank',
@@ -248,24 +294,33 @@ export const IMMIGRANT_VISA_POSTS = [
     address: 'Atatürk Boulevard No:110, Kavaklıdere, 06100 Ankara, Turkey',
     phone: '+90-312-455-5555',
     website: 'https://tr.usembassy.gov',
+    aliases: ['Turkey', 'Ankara', 'TR', 'Türkiye'],
   }),
   buildPost({
     id: 'eg-cai',
+    postCode: 'CRO',
+    supplementUrl:
+      'https://travel.state.gov/content/travel/en/us-visas/Supplements/Supplements_by_Post/CRO-Cairo.html',
     label: 'U.S. Embassy Cairo',
     countryCode: 'EG',
     city: 'Cairo',
     address: '5 Tawfik Diab St., Garden City, Cairo, Egypt',
     phone: '+20-2-2797-3300',
     website: 'https://eg.usembassy.gov',
+    aliases: ['Egypt', 'Cairo', 'CRO'],
   }),
   buildPost({
     id: 'bd-dac',
+    postCode: 'DHK',
+    supplementUrl:
+      'https://travel.state.gov/content/travel/en/us-visas/Supplements/Supplements_by_Post/DHK-Dhaka.html',
     label: 'U.S. Embassy Dhaka',
     countryCode: 'BD',
     city: 'Dhaka',
     address: 'Madani Avenue, Baridhara Diplomatic Enclave, Dhaka 1212, Bangladesh',
     phone: '+880-2-5566-2000',
     website: 'https://bd.usembassy.gov',
+    aliases: ['Bangladesh', 'Dhaka', 'DHK'],
   }),
   buildPost({
     id: 'de-frn',
@@ -279,7 +334,8 @@ export const IMMIGRANT_VISA_POSTS = [
     phone: '+49-69-7535-0',
     website: 'https://de.usembassy.gov/embassy-consulates/frankfurt/',
     type: 'Consulate',
-    searchExtras: ['Germany', 'Deutschland', 'Berlin', 'immigrant visa', 'Frankfurt am Main'],
+    aliases: ['Germany', 'Berlin', 'Frankfurt', 'FRN', 'Deutschland', 'Frankfurt am Main'],
+    notes: 'Germany immigrant visa post instructions are listed under Frankfurt in this dataset.',
   }),
   buildPost({
     id: 'ca-ott',
@@ -289,6 +345,7 @@ export const IMMIGRANT_VISA_POSTS = [
     address: '490 Sussex Drive, Ottawa, ON K1N 1G8, Canada',
     phone: '+1-613-688-5335',
     website: 'https://ca.usembassy.gov',
+    aliases: ['Canada', 'Ottawa', 'CA'],
   }),
   buildPost({
     id: 'mx-mex',
@@ -298,6 +355,7 @@ export const IMMIGRANT_VISA_POSTS = [
     address: 'Paseo de la Reforma 305, Col. Cuauhtémoc, 06500 Mexico City, Mexico',
     phone: '+55-5080-2000',
     website: 'https://mx.usembassy.gov',
+    aliases: ['Mexico', 'Mexico City', 'MX', 'Ciudad de México'],
   }),
   buildPost({
     id: 'za-jnb',
@@ -307,15 +365,20 @@ export const IMMIGRANT_VISA_POSTS = [
     address: '1 Sandton Drive, Sandhurst, Johannesburg, South Africa',
     phone: '+27-11-290-3000',
     website: 'https://za.usembassy.gov',
+    aliases: ['South Africa', 'Johannesburg', 'ZA'],
   }),
   buildPost({
     id: 'ci-abj',
+    postCode: 'ABJ',
+    supplementUrl:
+      'https://travel.state.gov/content/travel/en/us-visas/Supplements/Supplements_by_Post/ABJ-Abidjan.html',
     label: 'U.S. Embassy Abidjan',
     countryCode: 'CI',
     city: 'Abidjan',
     address: 'Riviera Golf, 01 B.P. 1712 Abidjan 01, Côte d’Ivoire',
     phone: '+225-22-49-40-00',
     website: 'https://ci.usembassy.gov',
+    aliases: ["Côte d'Ivoire", "Cote d'Ivoire", 'Ivory Coast', 'Abidjan', 'ABJ'],
   }),
   buildPost({
     id: 'ph-mnl',
@@ -379,6 +442,7 @@ export const IMMIGRANT_VISA_POSTS = [
     address: 'SES Av. das Nações, Quadra 801, Lote 03, 70406-900 Brasília, DF, Brazil',
     phone: '+55-61-3312-7000',
     website: 'https://br.usembassy.gov',
+    aliases: ['Brazil', 'Brasília', 'Brasilia', 'BR'],
   }),
   buildPost({
     id: 'co-bog',
@@ -388,6 +452,17 @@ export const IMMIGRANT_VISA_POSTS = [
     address: 'Carrera 45 # 24B-27, Bogotá, Colombia',
     phone: '+57-601-275-2000',
     website: 'https://co.usembassy.gov',
+    aliases: ['Colombia', 'Bogotá', 'Bogota', 'CO'],
+  }),
+  buildPost({
+    id: 'do-sdq',
+    label: 'U.S. Embassy Santo Domingo',
+    countryCode: 'DO',
+    city: 'Santo Domingo',
+    address: 'Av. República de Colombia #57, Ens. La Julia, Santo Domingo, Dominican Republic',
+    phone: '+1-809-567-7775',
+    website: 'https://do.usembassy.gov',
+    aliases: ['Dominican Republic', 'Dominicana', 'Santo Domingo', 'DO', 'DR'],
   }),
   buildPost({
     id: 'cu-hav',
@@ -507,6 +582,7 @@ export function toLegacyPost(post) {
     website: post.officialWebsite,
     supplementUrl: post.supplementUrl ?? null,
     searchText: post.searchText,
+    verificationStatus: post.verificationStatus,
     instructionsUrl: getPostInstructionsUrl(post),
     medicalUrl: getPostMedicalUrl(post),
   }
@@ -521,4 +597,20 @@ export function filterImmigrantPosts(query) {
       (p.postCode && p.postCode.toLowerCase().includes(q)) ||
       (p.address && p.address.toLowerCase().includes(q))
   )
+}
+
+export function getPostVerificationStats() {
+  const total = IMMIGRANT_VISA_POSTS.length
+  const withDirect = IMMIGRANT_VISA_POSTS.filter((p) => p.supplementUrl).length
+  const generalListOnly = IMMIGRANT_VISA_POSTS.filter(
+    (p) => p.verificationStatus === VERIFICATION_STATUS.GENERAL_LIST_ONLY
+  ).length
+  const needsReview = IMMIGRANT_VISA_POSTS.filter(
+    (p) => p.verificationStatus === VERIFICATION_STATUS.NEEDS_REVIEW
+  ).length
+  return { total, withDirect, generalListOnly, needsReview }
+}
+
+export function getPostsNeedingSupplementVerification() {
+  return IMMIGRANT_VISA_POSTS.filter((p) => !p.supplementUrl)
 }

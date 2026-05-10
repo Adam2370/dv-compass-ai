@@ -262,9 +262,23 @@ export const translations = {
       badgeGeneralPostsList: 'General posts list — verify manually',
       instructionsPreferDirect:
         'Use the direct post page when available. If only the general posts list is available, select your post manually and verify current instructions.',
+      openingDirectInstructions:
+        'Opening the official post-specific Travel.State.Gov instructions for this embassy or consulate.',
+      openingGeneralListFallback:
+        'This post does not yet have a stored direct page. The general official list will open; select your post manually.',
       germanyFrankfurtIvHint:
         'Immigrant visa processing for Germany is listed under Frankfurt on Travel.State.Gov.',
+      germanyDatasetNote:
+        'Germany immigrant visa post instructions are listed under Frankfurt in this dataset.',
       officialPostInstructions: 'Official post instructions (Travel.State.Gov)',
+      panelPhysicians: 'Panel physicians',
+      dataVerificationStatus: 'Data verification status',
+      verifTotalPosts: 'Total posts',
+      verifWithDirect: 'Direct post links',
+      verifGeneralFallback: 'General-list fallback',
+      verifNeedsReview: 'Needs review',
+      verifBrokenLink: 'Broken link (flagged)',
+      verifPostsNeedingSupplementTitle: 'Posts without a verified supplement URL',
       instructionsOnWebsite: 'Use the post’s official website for interview scheduling and medical guidance.',
       officialPostsList: 'Official list of immigrant visa posts (travel.state.gov)',
       tipBinder: 'Organize originals and copies in a tabbed binder as instructed.',
@@ -510,9 +524,23 @@ export const translations = {
       badgeGeneralPostsList: 'Liste générale des postes — vérifier manuellement',
       instructionsPreferDirect:
         'Utilisez la page directe du poste lorsqu’elle est disponible. Si seule la liste générale est disponible, sélectionnez votre poste manuellement et vérifiez les instructions en vigueur.',
+      openingDirectInstructions:
+        'Ouverture des instructions Travel.State.Gov spécifiques à ce poste (ambassade ou consulat).',
+      openingGeneralListFallback:
+        'Ce poste n’a pas encore de page directe enregistrée. La liste officielle générale s’ouvrira ; sélectionnez votre poste manuellement.',
       germanyFrankfurtIvHint:
         'Le traitement des visas d’immigrant pour l’Allemagne est indiqué sous Francfort sur Travel.State.Gov.',
+      germanyDatasetNote:
+        'Dans ce jeu de données, les instructions pour visa d’immigrant en Allemagne figurent sous Francfort.',
       officialPostInstructions: 'Instructions officielles du poste (Travel.State.Gov)',
+      panelPhysicians: 'Médecins panélistes',
+      dataVerificationStatus: 'État de vérification des données',
+      verifTotalPosts: 'Total des postes',
+      verifWithDirect: 'Liens directs vers le poste',
+      verifGeneralFallback: 'Repli sur la liste générale',
+      verifNeedsReview: 'À revoir',
+      verifBrokenLink: 'Lien rompu (signalé)',
+      verifPostsNeedingSupplementTitle: 'Postes sans URL de supplément vérifiée',
       instructionsOnWebsite: 'Utilisez le site officiel du poste pour entretien et instructions médicales.',
       officialPostsList: 'Liste officielle des postes de visas d’immigrant (travel.state.gov)',
       tipBinder: 'Classez originaux et copies dans un classeur à onglets comme demandé.',
@@ -754,8 +782,21 @@ export const translations = {
       badgeGeneralPostsList: 'قائمة عامة للبعثات — تحقق يدوياً',
       instructionsPreferDirect:
         'استخدم صفحة البعثة المباشرة عند توفرها. إن كانت القائمة العامة فقط متاحة، اختر بعثتك يدوياً وتحقق من التعليمات الحالية.',
+      openingDirectInstructions:
+        'جارٍ فتح تعليمات Travel.State.Gov الخاصة بهذه السفارة أو القنصلية.',
+      openingGeneralListFallback:
+        'لا توجد صفحة مباشرة مخزنة لهذا البعثة بعد. ستُفتح القائمة الرسمية العامة؛ اختر بعثتك يدوياً.',
       germanyFrankfurtIvHint: 'معالجة تأشيرة الهجرة لألمانيا مدرجة تحت فرانكفورت على Travel.State.Gov.',
+      germanyDatasetNote: 'في هذه البيانات، تعليمات تأشيرة الهجرة لألمانيا مدرجة تحت فرانكفورت.',
       officialPostInstructions: 'تعليمات رسمية للبعثة (Travel.State.Gov)',
+      panelPhysicians: 'أطباء اللوحة',
+      dataVerificationStatus: 'حالة التحقق من البيانات',
+      verifTotalPosts: 'إجمالي البعثات',
+      verifWithDirect: 'روابط مباشرة للبعثة',
+      verifGeneralFallback: 'الرجوع للقائمة العامة',
+      verifNeedsReview: 'يحتاج مراجعة',
+      verifBrokenLink: 'رابط معطوب (مُعلَّم)',
+      verifPostsNeedingSupplementTitle: 'بعثات بلا رابط ملحق موثق',
       instructionsOnWebsite: 'استخدم الموقع الرسمي للبعثة لتعليمات المقابلة والفحص.',
       officialPostsList: 'القائمة الرسمية لبعثات تأشيرات الهجرة (travel.state.gov)',
       tipBinder: 'رتّب الأصول والنسخ في ملف بألسنة كما طُلب.',
@@ -1000,9 +1041,23 @@ export const translations = {
       badgeGeneralPostsList: 'Lista general de postes — verificar manualmente',
       instructionsPreferDirect:
         'Use la página directa del poste cuando esté disponible. Si solo está la lista general, seleccione su poste manualmente y verifique las instrucciones vigentes.',
+      openingDirectInstructions:
+        'Abriendo las instrucciones específicas de Travel.State.Gov para esta embajada o consulado.',
+      openingGeneralListFallback:
+        'Este poste aún no tiene una página directa guardada. Se abrirá la lista oficial general; seleccione su poste manualmente.',
       germanyFrankfurtIvHint:
         'El procesamiento de visas de inmigrante para Alemania figura bajo Fráncfort en Travel.State.Gov.',
+      germanyDatasetNote:
+        'En este conjunto de datos, las instrucciones de visa de inmigrante para Alemania figuran bajo Fráncfort.',
       officialPostInstructions: 'Instrucciones oficiales del poste (Travel.State.Gov)',
+      panelPhysicians: 'Médicos de panel',
+      dataVerificationStatus: 'Estado de verificación de datos',
+      verifTotalPosts: 'Total de postes',
+      verifWithDirect: 'Enlaces directos al poste',
+      verifGeneralFallback: 'Respaldo en lista general',
+      verifNeedsReview: 'Requiere revisión',
+      verifBrokenLink: 'Enlace roto (marcado)',
+      verifPostsNeedingSupplementTitle: 'Postes sin URL de suplemento verificada',
       instructionsOnWebsite: 'Use el sitio oficial del poste para entrevista e instrucciones médicas.',
       officialPostsList: 'Lista oficial de postes de visas de inmigrante (travel.state.gov)',
       tipBinder: 'Organice originales y copias en carpeta con pestañas según instrucciones.',
